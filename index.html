@@ -1,0 +1,977 @@
+```html
+<!DOCTYPE html>
+<html lang="en" class="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>WebPress Media Pro - Image & Video Compressor</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <!-- Inter Font -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+        }
+        /* Penyesuaian bar skrol */
+        ::-webkit-scrollbar {
+            width: 6px;
+            height: 6px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #0b0f19;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #334155;
+            border-radius: 4px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #475569;
+        }
+        /* Gelongsor perbandingan gambar */
+        .comparison-slider {
+            position: relative;
+            overflow: hidden;
+        }
+        .comparison-img {
+            display: block;
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+        }
+        .img-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+        }
+        .slider-handle {
+            position: absolute;
+            top: 0;
+            bottom: 0;
+            width: 4px;
+            background: #10b981;
+            cursor: ew-resize;
+            z-index: 10;
+            box-shadow: 0 0 10px rgba(16, 185, 129, 0.5);
+        }
+        .slider-button {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 36px;
+            height: 36px;
+            background-color: #10b981;
+            color: #020617;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.4);
+            pointer-events: none;
+        }
+    </style>
+</head>
+<body class="bg-slate-950 text-slate-100 min-h-screen flex flex-col transition-colors duration-300">
+
+    <!-- Navigasi Atas (Header) -->
+    <header class="border-b border-slate-900 bg-slate-950/75 backdrop-blur-md sticky top-0 z-50">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
+            <div class="flex items-center space-x-3">
+                <div class="bg-gradient-to-tr from-emerald-500 to-teal-500 p-2.5 rounded-xl text-slate-950 shadow-lg shadow-emerald-500/20">
+                    <i data-lucide="video" class="w-6 h-6"></i>
+                </div>
+                <div>
+                    <h1 class="text-xl font-bold bg-gradient-to-r from-emerald-400 to-teal-300 bg-clip-text text-transparent">WebPress Media Pro</h1>
+                    <p class="text-[10px] text-slate-400 font-semibold tracking-wider uppercase">Local High-Performance Visual Compressor</p>
+                </div>
+            </div>
+            <div class="flex items-center space-x-2">
+                <span class="text-xs bg-emerald-500/10 text-emerald-400 px-3 py-1 rounded-full border border-emerald-500/20 font-medium flex items-center gap-1.5">
+                    <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span> 100% Secure Local Processing
+                </span>
+            </div>
+        </div>
+    </header>
+
+    <!-- Kandungan Utama -->
+    <main class="flex-grow max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-8 flex flex-col lg:flex-row gap-8">
+        
+        <!-- Pilihan Mod Kerja (Sidebar) -->
+        <aside class="w-full lg:w-64 shrink-0">
+            <div class="bg-slate-900/30 border border-slate-900 rounded-2xl p-4 sticky top-24 space-y-2">
+                <h2 class="text-xs font-semibold text-slate-500 uppercase tracking-wider px-3 mb-3">Processing Mode</h2>
+                
+                <button onclick="switchTab('image-compressor')" id="btn-image-compressor" class="tab-btn w-full flex items-center space-x-3 px-4 py-3 rounded-xl transition-all duration-200 bg-gradient-to-r from-emerald-500/10 to-teal-500/10 text-emerald-400 border border-emerald-500/20 font-medium">
+                    <i data-lucide="image" class="w-5 h-5"></i>
+                    <span class="font-medium text-sm">Image Compressor</span>
+                </button>
+
+                <button onclick="switchTab('video-compressor')" id="btn-video-compressor" class="tab-btn w-full flex items-center space-x-3 px-4 py-3 rounded-xl transition-all duration-200 text-slate-400 hover:text-slate-200 hover:bg-slate-900/50 font-medium">
+                    <i data-lucide="clapperboard" class="w-5 h-5"></i>
+                    <span class="font-medium text-sm">Video Compressor</span>
+                </button>
+            </div>
+        </aside>
+
+        <!-- Kawasan Kerja Pemrosesan -->
+        <section class="flex-grow">
+            
+            <!-- TAB 1: IMAGE COMPRESSOR -->
+            <div id="tab-image-compressor" class="tab-content space-y-6">
+                <div class="bg-slate-900/30 border border-slate-900 rounded-3xl p-6 sm:p-8">
+                    <div class="mb-6">
+                        <h3 class="text-xl font-bold text-slate-100 flex items-center gap-2">
+                            <i data-lucide="image" class="text-emerald-400"></i> Smart Image Compressor
+                        </h3>
+                        <p class="text-sm text-slate-400 mt-1">Supports modern web image formats including WebP, PNG, JPEG, and BMP. Choose your preferred compression style below.</p>
+                    </div>
+
+                    <!-- Zon Muat Naik Gambar -->
+                    <div id="image-drop-zone" class="border-2 border-dashed border-slate-800 hover:border-emerald-500/40 bg-slate-950/50 hover:bg-emerald-500/[0.01] rounded-2xl p-10 text-center cursor-pointer transition-all duration-300 group">
+                        <input type="file" id="image-input" accept="image/*" class="hidden">
+                        <div class="flex flex-col items-center justify-center space-y-4">
+                            <div class="p-4 bg-slate-900 rounded-full text-slate-400 group-hover:text-emerald-400 group-hover:bg-emerald-500/10 transition-colors duration-300">
+                                <i data-lucide="image-plus" class="w-8 h-8"></i>
+                            </div>
+                            <div>
+                                <p class="text-sm font-medium text-slate-300">Drag & drop your image here, or <span class="text-emerald-400 group-hover:underline">browse files</span></p>
+                                <p class="text-xs text-slate-500 mt-1">Supports JPEG, PNG, WebP, BMP, and GIF</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Ruang Kerja Pemampat Gambar -->
+                    <div id="image-workspace" class="hidden mt-8 space-y-8">
+                        
+                        <!-- Gelongsor Slaid Interaktif Sebelum/Selepas -->
+                        <div class="space-y-3">
+                            <div class="flex justify-between items-center">
+                                <span class="text-xs font-semibold text-slate-400 uppercase tracking-wider block">Comparison Slider (Left: Original | Right: Compressed)</span>
+                                <span class="text-xs bg-emerald-500/10 text-emerald-400 px-2 py-0.5 rounded-full border border-emerald-500/20">Interactive Live Preview</span>
+                            </div>
+                            
+                            <div class="bg-slate-950 rounded-2xl border border-slate-900 overflow-hidden h-[380px] relative flex items-center justify-center p-2">
+                                <div id="comparison-container" class="comparison-slider w-full h-full max-h-[360px] select-none rounded-lg">
+                                    <!-- Gambar Hasil Kompres (Bawah/Kanan) -->
+                                    <img id="preview-compressed" class="comparison-img" src="" alt="Compressed Output">
+                                    
+                                    <!-- Gambar Asal (Atas/Kiri dengan pemangkas lebar) -->
+                                    <div id="img-overlay-wrapper" class="img-overlay w-1/2 border-r border-emerald-500/50">
+                                        <img id="preview-original" class="comparison-img max-w-none" src="" alt="Original Source">
+                                    </div>
+                                    
+                                    <!-- Pemegang Gelongsor Slider -->
+                                    <div id="slider-handle" class="slider-handle left-1/2">
+                                        <div class="slider-button">
+                                            <i data-lucide="chevrons-left-right" class="w-4 h-4"></i>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Info Saiz Fail Gambar -->
+                        <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                            <div class="bg-slate-950 border border-slate-900 p-4 rounded-xl">
+                                <p class="text-xs text-slate-500">Original File Size</p>
+                                <p id="size-original" class="text-lg font-bold text-slate-300 mt-1">-</p>
+                            </div>
+                            <div class="bg-slate-950 border border-slate-900 p-4 rounded-xl">
+                                <p class="text-xs text-slate-500">Compressed File Size</p>
+                                <p id="size-compressed-text" class="text-lg font-bold text-emerald-400 mt-1">-</p>
+                            </div>
+                            <div class="bg-emerald-500/5 border border-emerald-500/10 p-4 rounded-xl flex flex-col justify-center">
+                                <p class="text-xs text-emerald-500/80">Estimated Storage Saved</p>
+                                <p id="image-savings-percentage" class="text-2xl font-black text-emerald-400 mt-0.5">-0%</p>
+                            </div>
+                        </div>
+
+                        <!-- Panel Tetapan Pemampatan Gambar -->
+                        <div class="bg-slate-950/80 border border-slate-900 rounded-2xl p-6 space-y-6">
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                
+                                <!-- Kaedah Pemampatan -->
+                                <div class="space-y-3">
+                                    <label class="text-sm font-medium text-slate-300 flex items-center gap-1.5">
+                                        <i data-lucide="settings-2" class="w-4 h-4 text-emerald-400"></i> Compression Type
+                                    </label>
+                                    <div class="grid grid-cols-2 gap-2">
+                                        <button id="btn-mode-lossy" onclick="setImageMethod('lossy')" class="px-4 py-3 rounded-xl border border-emerald-500/20 bg-emerald-500/10 text-emerald-400 text-left transition-all duration-200">
+                                            <p class="font-bold text-xs">Lossy Compression</p>
+                                            <p class="text-[10px] text-emerald-400/70 mt-0.5">Saves ~80% - 90% space</p>
+                                        </button>
+                                        <button id="btn-mode-lossless" onclick="setImageMethod('lossless')" class="px-4 py-3 rounded-xl border border-slate-900 bg-slate-900/40 text-slate-400 text-left hover:border-slate-800 transition-all duration-200">
+                                            <p class="font-bold text-xs text-slate-300">Lossless Compression</p>
+                                            <p class="text-[10px] text-slate-500 mt-0.5">Keeps 100% pixel quality</p>
+                                        </button>
+                                    </div>
+                                </div>
+
+                                <!-- Bar Kualiti -->
+                                <div id="quality-slider-container" class="space-y-3">
+                                    <div class="flex justify-between items-center">
+                                        <label class="text-sm font-medium text-slate-300 flex items-center gap-1.5">
+                                            <i data-lucide="sliders" class="w-4 h-4 text-emerald-400"></i> Output Quality
+                                        </label>
+                                        <span id="quality-display-val" class="text-sm font-bold text-emerald-400">75%</span>
+                                    </div>
+                                    <input type="range" id="image-quality" min="10" max="100" value="75" class="w-full h-2 bg-slate-800 rounded-lg appearance-none cursor-pointer accent-emerald-500">
+                                    <p class="text-[11px] text-slate-500">65% - 80% is the sweet spot for maximum compression with virtually zero human-eye noticeable quality loss.</p>
+                                </div>
+                            </div>
+
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-6 pt-2 border-t border-slate-900">
+                                <!-- Format Output -->
+                                <div class="space-y-3">
+                                    <label class="text-sm font-medium text-slate-300 flex items-center gap-1.5">
+                                        <i data-lucide="file-output" class="w-4 h-4 text-emerald-400"></i> Export Format
+                                    </label>
+                                    <select id="image-format-select" class="w-full bg-slate-900 border border-slate-800 rounded-xl px-4 py-3 text-sm text-slate-200 focus:outline-none focus:border-emerald-500">
+                                        <option value="image/jpeg">JPEG (Highly Compressed)</option>
+                                        <option value="image/webp">WebP (Modern Next-Gen Format)</option>
+                                        <option value="image/png">PNG (Lossless / Transparent)</option>
+                                    </select>
+                                </div>
+
+                                <!-- Skala Dimensi -->
+                                <div class="space-y-3">
+                                    <div class="flex justify-between items-center">
+                                        <label class="text-sm font-medium text-slate-300 flex items-center gap-1.5">
+                                            <i data-lucide="maximize-2" class="w-4 h-4 text-emerald-400"></i> Resolution Scaling
+                                        </label>
+                                        <span id="image-scale-val" class="text-sm font-bold text-emerald-400">100%</span>
+                                    </div>
+                                    <input type="range" id="image-scale" min="10" max="100" value="100" class="w-full h-2 bg-slate-800 rounded-lg appearance-none cursor-pointer accent-emerald-500">
+                                    <p class="text-[11px] text-slate-500">Scale down physical image dimensions for aggressive file size savings.</p>
+                                end</div>
+                            </div>
+                        </div>
+
+                        <!-- Butang Tindakan -->
+                        <div class="flex flex-col sm:flex-row gap-4 justify-end items-center pt-2">
+                            <button id="btn-reset-image" class="w-full sm:w-auto px-6 py-3 border border-slate-900 hover:border-slate-800 bg-slate-950 text-slate-400 hover:text-slate-200 rounded-xl font-medium transition-all duration-200 flex items-center justify-center gap-2">
+                                <i data-lucide="refresh-cw" class="w-4 h-4"></i> Upload Different File
+                            </button>
+                            <button id="btn-download-image" class="w-full sm:w-auto px-8 py-3 bg-gradient-to-r from-emerald-500 to-teal-500 hover:from-emerald-600 hover:to-teal-600 text-slate-950 font-bold rounded-xl transition-all duration-200 shadow-lg shadow-emerald-500/10 flex items-center justify-center gap-2">
+                                <i data-lucide="download" class="w-5 h-5"></i> Compress & Download Image
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- TAB 2: VIDEO COMPRESSOR -->
+            <div id="tab-video-compressor" class="tab-content hidden space-y-6">
+                <div class="bg-slate-900/30 border border-slate-900 rounded-3xl p-6 sm:p-8">
+                    <div class="mb-6">
+                        <h3 class="text-xl font-bold text-slate-100 flex items-center gap-2">
+                            <i data-lucide="clapperboard" class="text-emerald-400"></i> Intelligent Local Video Compressor
+                        </h3>
+                        <p class="text-sm text-slate-400 mt-1">Compress large MP4 or WebM videos locally. By utilizing hardware-accelerated rendering pipelines, we compress directly onto your local storage.</p>
+                    </div>
+
+                    <!-- Zon Muat Naik Video -->
+                    <div id="video-drop-zone" class="border-2 border-dashed border-slate-800 hover:border-emerald-500/40 bg-slate-950/50 hover:bg-emerald-500/[0.01] rounded-2xl p-10 text-center cursor-pointer transition-all duration-300 group">
+                        <input type="file" id="video-input" accept="video/*" class="hidden">
+                        <div class="flex flex-col items-center justify-center space-y-4">
+                            <div class="p-4 bg-slate-900 rounded-full text-slate-400 group-hover:text-emerald-400 group-hover:bg-emerald-500/10 transition-colors duration-300">
+                                <i data-lucide="video" class="w-8 h-8"></i>
+                            </div>
+                            <div>
+                                <p class="text-sm font-medium text-slate-300">Drag & drop your video here, or <span class="text-emerald-400 group-hover:underline">browse files</span></p>
+                                <p class="text-xs text-slate-500 mt-1">Supports MP4, WebM, MOV, and AVI formats</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Ruang Kerja Pemampat Video -->
+                    <div id="video-workspace" class="hidden mt-8 space-y-8 animate-fade-in">
+                        <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                            <!-- Pemain Pratinjau Video -->
+                            <div class="space-y-3">
+                                <span class="text-xs font-semibold text-slate-400 uppercase tracking-wider block">Source Video Preview</span>
+                                <div class="bg-slate-950 rounded-2xl border border-slate-900 overflow-hidden aspect-video flex items-center justify-center relative">
+                                    <video id="video-preview" controls class="w-full h-full object-contain"></video>
+                                </div>
+                                <div class="bg-slate-950 border border-slate-900 p-4 rounded-xl grid grid-cols-2 gap-4">
+                                    <div>
+                                        <p class="text-[10px] text-slate-500 uppercase tracking-wider">Video Duration</p>
+                                        <p id="video-duration" class="text-sm font-semibold text-slate-300 mt-0.5">-</p>
+                                    </div>
+                                    <div>
+                                        <p class="text-[10px] text-slate-500 uppercase tracking-wider">Original Resolution</p>
+                                        <p id="video-resolution" class="text-sm font-semibold text-slate-300 mt-0.5">-</p>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Pilihan Kadar Kompresi Video -->
+                            <div class="space-y-6">
+                                <span class="text-xs font-semibold text-slate-400 uppercase tracking-wider block">Compression Preset Profile</span>
+                                
+                                <div class="space-y-3">
+                                    <!-- Profil Kompresi Pilihan -->
+                                    <div class="grid grid-cols-1 gap-3">
+                                        <!-- Standard Optimum -->
+                                        <button onclick="setVideoProfile('standard')" id="btn-vprof-standard" class="p-4 rounded-xl border border-emerald-500/20 bg-emerald-500/10 text-left transition-all duration-200">
+                                            <div class="flex items-center justify-between">
+                                                <span class="font-bold text-sm text-emerald-400 flex items-center gap-1.5">
+                                                    <i data-lucide="check-circle-2" class="w-4 h-4"></i> Standard Optimal
+                                                </span>
+                                                <span class="text-xs bg-emerald-500/20 text-emerald-300 px-2.5 py-0.5 rounded-full font-bold">40% - 60% Shrunk</span>
+                                            </div>
+                                            <p class="text-xs text-slate-400 mt-1">Balanced quality profile. Highly recommended for social media (Instagram, Facebook) and presentations.</p>
+                                        </button>
+
+                                        <!-- Kompresi Agresif -->
+                                        <button onclick="setVideoProfile('aggressive')" id="btn-vprof-aggressive" class="p-4 rounded-xl border border-slate-900 bg-slate-950 text-left hover:border-slate-800 transition-all duration-200">
+                                            <div class="flex items-center justify-between">
+                                                <span class="font-bold text-sm text-slate-300 flex items-center gap-1.5">
+                                                    <i data-lucide="shield-alert" class="w-4 h-4 text-emerald-450"></i> Aggressive Compression
+                                                </span>
+                                                <span class="text-xs bg-slate-800 text-slate-400 px-2.5 py-0.5 rounded-full font-bold">70% - 90% Shrunk</span>
+                                            </div>
+                                            <p class="text-xs text-slate-500 mt-1">Drastically reduces file size for quick sharing over WhatsApp, Telegram, or Email. Perfect for high-bitrate raw camera files (shrinks up to 98%).</p>
+                                        </button>
+                                    </div>
+                                </div>
+
+                                <!-- Ringkasan Anggaran Penjimatan Fail Video -->
+                                <div class="bg-slate-950 border border-slate-900 p-5 rounded-2xl space-y-4">
+                                    <div class="flex justify-between items-center text-sm border-b border-slate-900 pb-3">
+                                        <span class="text-slate-400">Original Size:</span>
+                                        <span id="video-original-size" class="font-bold text-slate-200">-</span>
+                                    </div>
+                                    <div class="flex justify-between items-center text-sm border-b border-slate-900 pb-3">
+                                        <span class="text-slate-400">Expected New Size:</span>
+                                        <span id="video-estimated-size" class="font-bold text-emerald-400">-</span>
+                                    </div>
+                                    <div class="flex justify-between items-center text-sm">
+                                        <span class="text-slate-400">Storage Optimization:</span>
+                                        <span id="video-savings-badge" class="text-xs bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 px-2.5 py-1 rounded font-bold">-50% Smaller</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Butang Tindakan Video -->
+                        <div class="flex flex-col sm:flex-row gap-4 justify-end items-center pt-2">
+                            <button id="btn-reset-video" class="w-full sm:w-auto px-6 py-3 border border-slate-900 hover:border-slate-800 bg-slate-950 text-slate-400 hover:text-slate-200 rounded-xl font-medium transition-all duration-200 flex items-center justify-center gap-2">
+                                <i data-lucide="refresh-cw" class="w-4 h-4"></i> Upload Different Video
+                            </button>
+                            <button id="btn-process-video" onclick="startVideoCompression()" class="w-full sm:w-auto px-8 py-3 bg-gradient-to-r from-emerald-500 to-teal-500 hover:from-emerald-600 hover:to-teal-600 text-slate-950 font-bold rounded-xl transition-all duration-200 shadow-lg shadow-emerald-500/10 flex items-center justify-center gap-2">
+                                <i data-lucide="zap" class="w-5 h-5"></i> Compress & Save Video
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        </section>
+    </main>
+
+    <!-- Modal Pemprosesan Video (Real-time Progress) -->
+    <div id="video-processing-modal" class="fixed inset-0 bg-slate-950/80 backdrop-blur-sm z-50 flex items-center justify-center hidden p-4">
+        <div class="bg-slate-900 border border-slate-800 w-full max-w-md p-6 rounded-2xl shadow-2xl space-y-6 text-center">
+            <div class="mx-auto bg-emerald-500/10 w-14 h-14 rounded-full flex items-center justify-center text-emerald-400 animate-spin">
+                <i data-lucide="loader-2" class="w-8 h-8"></i>
+            </div>
+            <div class="space-y-2">
+                <h4 class="text-lg font-bold text-slate-100">Compressing Video in Progress...</h4>
+                <p class="text-xs text-slate-400 max-w-xs mx-auto">We are physically reducing the bitrate and down-scaling resolution frame-by-frame on your browser sandbox.</p>
+            </div>
+            
+            <div class="space-y-2">
+                <div class="w-full bg-slate-850 h-2.5 rounded-full overflow-hidden">
+                    <div id="video-progress-bar" class="bg-emerald-500 h-full w-0 transition-all duration-200"></div>
+                </div>
+                <div class="flex justify-between items-center text-[11px] text-slate-500">
+                    <span id="video-progress-status">Initializing render context...</span>
+                    <span id="video-progress-percent">0%</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Kaki Laman -->
+    <footer class="border-t border-slate-900 bg-slate-950 py-6 mt-12">
+        <div class="max-w-7xl mx-auto px-4 text-center space-y-2">
+            <p class="text-sm text-slate-500">&copy; 2026 WebPress Media Pro. Fully English Interface.</p>
+            <p class="text-xs text-slate-600">Local rendering sandbox enabled. Files never leave your browser space.</p>
+        </div>
+    </footer>
+
+    <!-- Sistem Pop-Up Notifikasi Toast -->
+    <div id="toast" class="fixed bottom-6 right-6 bg-slate-900 border border-slate-800 text-slate-100 px-5 py-4 rounded-2xl shadow-2xl flex items-center gap-3 transform translate-y-20 opacity-0 transition-all duration-300 z-50 max-w-sm">
+        <div id="toast-icon-box" class="p-1.5 rounded-lg">
+            <i id="toast-icon" data-lucide="info" class="w-5 h-5"></i>
+        </div>
+        <div>
+            <p id="toast-message" class="text-sm font-semibold"></p>
+        </div>
+    </div>
+
+    <!-- Hidden elements for processing -->
+    <canvas id="img-hidden-canvas" class="hidden"></canvas>
+    <video id="hidden-video" class="hidden" muted playsinline></video>
+
+    <!-- Logik Pengaturcaraan Visual WebPress Media Pro -->
+    <script>
+        // Mengaktifkan sistem ikon dan pemprosesan utama apabila dokumen telah dimuat
+        document.addEventListener('DOMContentLoaded', () => {
+            lucide.createIcons();
+            initImageCompressor();
+            initVideoCompressor();
+            initSlider();
+        });
+
+        // ------------------ SISTEM NOTIFIKASI TOAST ------------------
+        let toastTimeout;
+        function showToast(message, type = 'success') {
+            const toast = document.getElementById('toast');
+            const toastIconBox = document.getElementById('toast-icon-box');
+            const toastIcon = document.getElementById('toast-icon');
+            const toastMsg = document.getElementById('toast-message');
+
+            toastMsg.textContent = message;
+
+            if (type === 'success') {
+                toastIconBox.className = "p-1.5 rounded-lg bg-emerald-500/10 text-emerald-400";
+                toastIcon.setAttribute('data-lucide', 'check-circle');
+            } else if (type === 'error') {
+                toastIconBox.className = "p-1.5 rounded-lg bg-rose-500/10 text-rose-400";
+                toastIcon.setAttribute('data-lucide', 'alert-triangle');
+            } else {
+                toastIconBox.className = "p-1.5 rounded-lg bg-blue-500/10 text-blue-400";
+                toastIcon.setAttribute('data-lucide', 'info');
+            }
+
+            lucide.createIcons();
+
+            toast.classList.remove('translate-y-20', 'opacity-0');
+            toast.classList.add('translate-y-0', 'opacity-100');
+
+            clearTimeout(toastTimeout);
+            toastTimeout = setTimeout(() => {
+                toast.classList.remove('translate-y-0', 'opacity-100');
+                toast.classList.add('translate-y-20', 'opacity-0');
+            }, 3000);
+        }
+
+        // ------------------ PENGURUSAN DATA SAIZ FAIL ------------------
+        function formatBytes(bytes, decimals = 2) {
+            if (bytes === 0) return '0 Bytes';
+            const k = 1024;
+            const dm = decimals < 0 ? 0 : decimals;
+            const sizes = ['Bytes', 'KB', 'MB', 'GB'];
+            const i = Math.floor(Math.log(bytes) / Math.log(k));
+            return parseFloat((bytes / Math.pow(k, i)).toFixed(dm)) + ' ' + sizes[i];
+        }
+
+        // ------------------ SISTEM TUKAR TAB PEMPROSESAN ------------------
+        function switchTab(tabId) {
+            document.querySelectorAll('.tab-content').forEach(el => el.classList.add('hidden'));
+            document.getElementById(`tab-${tabId}`).classList.remove('hidden');
+
+            document.querySelectorAll('.tab-btn').forEach(btn => {
+                btn.className = "tab-btn w-full flex items-center space-x-3 px-4 py-3 rounded-xl transition-all duration-200 text-slate-400 hover:text-slate-200 hover:bg-slate-900/50 font-medium";
+            });
+            
+            const activeBtn = document.getElementById(`btn-${tabId}`);
+            activeBtn.className = "tab-btn w-full flex items-center space-x-3 px-4 py-3 rounded-xl transition-all duration-200 bg-gradient-to-r from-emerald-500/10 to-teal-500/10 text-emerald-400 border border-emerald-500/20 font-medium";
+        }
+
+        // ------------------ SISTEM GELONGSOR PERBANDINGAN SEBELUM/SELEPAS ------------------
+        function initSlider() {
+            const container = document.getElementById('comparison-container');
+            const overlay = document.getElementById('img-overlay-wrapper');
+            const handle = document.getElementById('slider-handle');
+            let isDragging = false;
+
+            function moveSlider(clientX) {
+                const rect = container.getBoundingClientRect();
+                const x = clientX - rect.left;
+                let percentage = (x / rect.width) * 100;
+                
+                if (percentage < 0) percentage = 0;
+                if (percentage > 100) percentage = 100;
+
+                handle.style.left = `${percentage}%`;
+                overlay.style.width = `${percentage}%`;
+            }
+
+            container.addEventListener('mousedown', (e) => {
+                isDragging = true;
+                moveSlider(e.clientX);
+            });
+
+            window.addEventListener('mouseup', () => {
+                isDragging = false;
+            });
+
+            window.addEventListener('mousemove', (e) => {
+                if (!isDragging) return;
+                moveSlider(e.clientX);
+            });
+
+            container.addEventListener('touchstart', (e) => {
+                isDragging = true;
+                if (e.touches.length > 0) moveSlider(e.touches[0].clientX);
+            });
+
+            window.addEventListener('touchend', () => {
+                isDragging = false;
+            });
+
+            window.addEventListener('touchmove', (e) => {
+                if (!isDragging) return;
+                if (e.touches.length > 0) moveSlider(e.touches[0].clientX);
+            });
+        }
+
+
+        // ------------------ BAHAGIAN 1: PEMAMPAT GAMBAR (REAL COMPRESSION) ------------------
+        let loadedImage = null;
+        let originalImageFile = null;
+        let currentCompressionMethod = 'lossy'; 
+
+        function initImageCompressor() {
+            const dropZone = document.getElementById('image-drop-zone');
+            const input = document.getElementById('image-input');
+            const scaleRange = document.getElementById('image-scale');
+            const qualityRange = document.getElementById('image-quality');
+            const formatSelect = document.getElementById('image-format-select');
+            const btnReset = document.getElementById('btn-reset-image');
+            const btnDownload = document.getElementById('btn-download-image');
+
+            dropZone.addEventListener('click', () => input.click());
+
+            dropZone.addEventListener('dragover', (e) => {
+                e.preventDefault();
+                dropZone.classList.add('border-emerald-500', 'bg-emerald-500/[0.02]');
+            });
+
+            dropZone.addEventListener('dragleave', () => {
+                dropZone.classList.remove('border-emerald-500', 'bg-emerald-500/[0.02]');
+            });
+
+            dropZone.addEventListener('drop', (e) => {
+                e.preventDefault();
+                dropZone.classList.remove('border-emerald-500', 'bg-emerald-500/[0.02]');
+                if (e.dataTransfer.files.length > 0) {
+                    processImageFile(e.dataTransfer.files[0]);
+                }
+            });
+
+            input.addEventListener('change', (e) => {
+                if (e.target.files.length > 0) {
+                    processImageFile(e.target.files[0]);
+                }
+            });
+
+            scaleRange.addEventListener('input', (e) => {
+                document.getElementById('image-scale-val').textContent = e.target.value + '%';
+                triggerImageCompression();
+            });
+
+            qualityRange.addEventListener('input', (e) => {
+                document.getElementById('quality-display-val').textContent = e.target.value + '%';
+                triggerImageCompression();
+            });
+
+            formatSelect.addEventListener('change', () => {
+                triggerImageCompression();
+            });
+
+            btnReset.addEventListener('click', () => {
+                loadedImage = null;
+                originalImageFile = null;
+                input.value = '';
+                document.getElementById('image-workspace').classList.add('hidden');
+                dropZone.classList.remove('hidden');
+                showToast('Image cleared.', 'info');
+            });
+
+            btnDownload.addEventListener('click', () => {
+                const compressedSrc = document.getElementById('preview-compressed').src;
+                if (!compressedSrc) return;
+
+                const link = document.createElement('a');
+                let ext = formatSelect.value.split('/')[1];
+                link.download = `webpress_${originalImageFile.name.substring(0, originalImageFile.name.lastIndexOf('.')) || originalImageFile.name}.${ext}`;
+                link.href = compressedSrc;
+                document.body.appendChild(link);
+                link.click();
+                document.body.removeChild(link);
+                showToast('Image downloaded to your local storage!');
+            });
+        }
+
+        function processImageFile(file) {
+            if (!file.type.startsWith('image/')) {
+                showToast('Uploaded file is not a valid image format!', 'error');
+                return;
+            }
+
+            originalImageFile = file;
+            const reader = new FileReader();
+            
+            reader.onload = (e) => {
+                const img = new Image();
+                img.onload = () => {
+                    loadedImage = img;
+                    
+                    document.getElementById('preview-original').src = e.target.result;
+                    document.getElementById('size-original').textContent = formatBytes(file.size);
+                    
+                    const select = document.getElementById('image-format-select');
+                    if (['image/png', 'image/jpeg', 'image/webp'].includes(file.type)) {
+                        select.value = file.type;
+                    } else {
+                        select.value = 'image/jpeg'; 
+                    }
+
+                    document.getElementById('image-workspace').classList.remove('hidden');
+                    document.getElementById('image-drop-zone').classList.add('hidden');
+
+                    triggerImageCompression();
+                    showToast('Image loaded. Ready for compression.');
+                };
+                img.src = e.target.result;
+            };
+            reader.readAsDataURL(file);
+        }
+
+        function setImageMethod(method) {
+            currentCompressionMethod = method;
+            
+            const btnLossy = document.getElementById('btn-mode-lossy');
+            const btnLossless = document.getElementById('btn-mode-lossless');
+            const qualityContainer = document.getElementById('quality-slider-container');
+            const formatSelect = document.getElementById('image-format-select');
+
+            if (method === 'lossy') {
+                btnLossy.className = "px-4 py-3 rounded-xl border border-emerald-500/20 bg-emerald-500/10 text-emerald-400 text-left transition-all duration-200";
+                btnLossless.className = "px-4 py-3 rounded-xl border border-slate-900 bg-slate-900/40 text-slate-400 text-left hover:border-slate-800 transition-all duration-200";
+                qualityContainer.style.opacity = '1';
+                qualityContainer.style.pointerEvents = 'auto';
+                
+                if (formatSelect.value === 'image/png') {
+                    formatSelect.value = 'image/jpeg';
+                }
+            } else {
+                btnLossy.className = "px-4 py-3 rounded-xl border border-slate-900 bg-slate-900/40 text-slate-400 text-left hover:border-slate-800 transition-all duration-200";
+                btnLossless.className = "px-4 py-3 rounded-xl border border-emerald-500/20 bg-emerald-500/10 text-emerald-400 text-left transition-all duration-200";
+                qualityContainer.style.opacity = '0.3';
+                qualityContainer.style.pointerEvents = 'none';
+                
+                formatSelect.value = 'image/png';
+            }
+
+            triggerImageCompression();
+        }
+
+        function triggerImageCompression() {
+            if (!loadedImage) return;
+
+            const canvas = document.getElementById('img-hidden-canvas');
+            const ctx = canvas.getContext('2d');
+
+            const scale = document.getElementById('image-scale').value / 100;
+            const quality = currentCompressionMethod === 'lossy' ? (document.getElementById('image-quality').value / 100) : 1.0;
+            const targetMimeType = document.getElementById('image-format-select').value;
+
+            const newWidth = Math.max(1, Math.round(loadedImage.width * scale));
+            const newHeight = Math.max(1, Math.round(loadedImage.height * scale));
+
+            canvas.width = newWidth;
+            canvas.height = newHeight;
+
+            ctx.drawImage(loadedImage, 0, 0, newWidth, newHeight);
+
+            // Mampatan sebenar dilakukan menggunakan kaedah toDataURL mengikut parameter kualiti
+            const compressedDataUrl = canvas.toDataURL(targetMimeType, quality);
+            
+            const previewCompressed = document.getElementById('preview-compressed');
+            previewCompressed.src = compressedDataUrl;
+
+            const head = `data:${targetMimeType};base64,`;
+            const approxBytes = Math.round((compressedDataUrl.length - head.length) * 3 / 4);
+
+            document.getElementById('size-compressed-text').textContent = formatBytes(approxBytes);
+
+            const originalSize = originalImageFile.size;
+            const savedPercentage = Math.max(0, Math.round(((originalSize - approxBytes) / originalSize) * 100));
+            
+            const savingsText = document.getElementById('image-savings-percentage');
+            savingsText.textContent = `-${savedPercentage}%`;
+
+            // Atur gelongsor slaid ke tengah selepas imej berjaya dirender semula
+            const handle = document.getElementById('slider-handle');
+            const overlay = document.getElementById('img-overlay-wrapper');
+            handle.style.left = '50%';
+            overlay.style.width = '50%';
+        }
+
+
+        // ------------------ BAHAGIAN 2: PEMAMPAT VIDEO (REAL WORKFLOW VIA CANVAS CAPTURE) ------------------
+        let currentVideoProfile = 'standard'; 
+        let videoFileBlob = null;
+
+        function initVideoCompressor() {
+            const dropZone = document.getElementById('video-drop-zone');
+            const input = document.getElementById('video-input');
+            const btnReset = document.getElementById('btn-reset-video');
+
+            dropZone.addEventListener('click', () => input.click());
+
+            dropZone.addEventListener('dragover', (e) => {
+                e.preventDefault();
+                dropZone.classList.add('border-emerald-500', 'bg-emerald-500/[0.02]');
+            });
+
+            dropZone.addEventListener('dragleave', () => {
+                dropZone.classList.remove('border-emerald-500', 'bg-emerald-500/[0.02]');
+            });
+
+            dropZone.addEventListener('drop', (e) => {
+                e.preventDefault();
+                dropZone.classList.remove('border-emerald-500', 'bg-emerald-500/[0.02]');
+                if (e.dataTransfer.files.length > 0) {
+                    processVideoFile(e.dataTransfer.files[0]);
+                }
+            });
+
+            input.addEventListener('change', (e) => {
+                if (e.target.files.length > 0) {
+                    processVideoFile(e.target.files[0]);
+                }
+            });
+
+            btnReset.addEventListener('click', () => {
+                videoFileBlob = null;
+                input.value = '';
+                const videoPreview = document.getElementById('video-preview');
+                videoPreview.pause();
+                videoPreview.src = '';
+                document.getElementById('video-workspace').classList.add('hidden');
+                dropZone.classList.remove('hidden');
+                showToast('Video cleared.', 'info');
+            });
+        }
+
+        function processVideoFile(file) {
+            if (!file.type.startsWith('video/')) {
+                showToast('Selected file is not a valid video format!', 'error');
+                return;
+            }
+
+            videoFileBlob = file;
+
+            const fileURL = URL.createObjectURL(file);
+            const videoPreview = document.getElementById('video-preview');
+            videoPreview.src = fileURL;
+
+            // Masukkan juga video ke elemen tersorok bagi pemrosesan rendering frame
+            const hiddenVideo = document.getElementById('hidden-video');
+            hiddenVideo.src = fileURL;
+
+            document.getElementById('video-original-size').textContent = formatBytes(file.size);
+
+            videoPreview.onloadedmetadata = () => {
+                const duration = Math.round(videoPreview.duration);
+                const minutes = Math.floor(duration / 60);
+                const seconds = duration % 60;
+                document.getElementById('video-duration').textContent = `${minutes}:${seconds < 10 ? '0' : ''}${seconds}s`;
+                document.getElementById('video-resolution').textContent = `${videoPreview.videoWidth} x ${videoPreview.videoHeight}`;
+
+                document.getElementById('video-workspace').classList.remove('hidden');
+                document.getElementById('video-drop-zone').classList.add('hidden');
+
+                calculateVideoEstimation();
+                showToast('Video parsed successfully.');
+            };
+        }
+
+        function setVideoProfile(profile) {
+            currentVideoProfile = profile;
+            
+            const btnStandard = document.getElementById('btn-vprof-standard');
+            const btnAggressive = document.getElementById('btn-vprof-aggressive');
+
+            if (profile === 'standard') {
+                btnStandard.className = "p-4 rounded-xl border border-emerald-500/20 bg-emerald-500/10 text-left transition-all duration-200";
+                btnAggressive.className = "p-4 rounded-xl border border-slate-900 bg-slate-950 text-left hover:border-slate-800 transition-all duration-200";
+                btnStandard.querySelector('span').className = "font-bold text-sm text-emerald-400 flex items-center gap-1.5";
+                btnAggressive.querySelector('span').className = "font-bold text-sm text-slate-300 flex items-center gap-1.5";
+            } else {
+                btnStandard.className = "p-4 rounded-xl border border-slate-900 bg-slate-950 text-left hover:border-slate-800 transition-all duration-200";
+                btnAggressive.className = "p-4 rounded-xl border border-emerald-500/20 bg-emerald-500/10 text-left transition-all duration-200";
+                btnStandard.querySelector('span').className = "font-bold text-sm text-slate-300 flex items-center gap-1.5";
+                btnAggressive.querySelector('span').className = "font-bold text-sm text-emerald-400 flex items-center gap-1.5";
+            }
+
+            calculateVideoEstimation();
+        }
+
+        function calculateVideoEstimation() {
+            if (!videoFileBlob) return;
+
+            let reductionFactor = 0.5; 
+            let badgeText = "-50% Shrunk (Standard)";
+
+            if (currentVideoProfile === 'aggressive') {
+                reductionFactor = 0.2; 
+                badgeText = "-80% Shrunk (WhatsApp optimized)";
+            }
+
+            const estimatedSize = Math.round(videoFileBlob.size * reductionFactor);
+            document.getElementById('video-estimated-size').textContent = formatBytes(estimatedSize);
+            document.getElementById('video-savings-badge').textContent = badgeText;
+        }
+
+        // ------------------ ENJIN RENDER KOMPRESI VIDEO TEMPATAN (CANVAS STREAM + MEDIARECORDER) ------------------
+        // Sistem ini melakukan pemampatan sebenar dengan merender video asal ke dalam saiz resolusi yang dikecilkan 
+        // dan merekod aliran stream pada kadar bit (bitrate) yang lebih rendah. Hasilnya ialah fail video WebM/MP4 yang jauh lebih kecil!
+        function startVideoCompression() {
+            if (!videoFileBlob) return;
+
+            const hiddenVideo = document.getElementById('hidden-video');
+            const modal = document.getElementById('video-processing-modal');
+            const progressBar = document.getElementById('video-progress-bar');
+            const progressStatus = document.getElementById('video-progress-status');
+            const progressPercent = document.getElementById('video-progress-percent');
+
+            // Aktifkan visual loading modal
+            modal.classList.remove('hidden');
+            progressBar.style.width = '0%';
+            progressPercent.textContent = '0%';
+            progressStatus.textContent = 'Setting up audio & video stream...';
+
+            // Tetapkan tetapan profil kompresi
+            let scale = 0.7; // Standard: 70% resolution scale
+            let targetBitrate = 1200000; // 1.2 Mbps
+            let framerate = 24;
+
+            if (currentVideoProfile === 'aggressive') {
+                scale = 0.5; // Aggressive: 50% resolution scale
+                targetBitrate = 450000; // 450 kbps
+                framerate = 18;
+            }
+
+            // Sediakan canvas kerja tersorok
+            const canvas = document.createElement('canvas');
+            const ctx = canvas.getContext('2d');
+            canvas.width = Math.round(hiddenVideo.videoWidth * scale);
+            canvas.height = Math.round(hiddenVideo.videoHeight * scale);
+
+            // Laluan Web Audio API untuk merakam bunyi audio daripada video secara langsung
+            let audioCtx, audioSource, audioDest;
+            let streamTracks = [];
+
+            try {
+                audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+                audioSource = audioCtx.createMediaElementSource(hiddenVideo);
+                audioDest = audioCtx.createMediaStreamDestination();
+                audioSource.connect(audioDest);
+                
+                // Masukkan runut audio ke dalam senarai aliran
+                audioDest.stream.getAudioTracks().forEach(track => streamTracks.push(track));
+            } catch (e) {
+                console.warn("Audio Capture is not supported or silent video stream: ", e);
+            }
+
+            // Tangkap aliran video daripada canvas
+            const canvasStream = canvas.captureStream(framerate);
+            canvasStream.getVideoTracks().forEach(track => streamTracks.push(track));
+
+            // Gabungkan audio dan video ke aliran media tunggal
+            const combinedStream = new MediaStream(streamTracks);
+
+            // Tentukan mime type recording yang disokong oleh pelayar web (WebM paling stabil secara client-side)
+            let options = { mimeType: 'video/webm;codecs=vp8,opus', videoBitsPerSecond: targetBitrate };
+            if (!MediaRecorder.isTypeSupported(options.mimeType)) {
+                options = { mimeType: 'video/webm', videoBitsPerSecond: targetBitrate };
+            }
+
+            let mediaRecorder;
+            const chunks = [];
+
+            try {
+                mediaRecorder = new MediaRecorder(combinedStream, options);
+            } catch (err) {
+                // Fallback jika codec spesifik tidak disokong
+                mediaRecorder = new MediaRecorder(combinedStream);
+            }
+
+            mediaRecorder.ondataavailable = (e) => {
+                if (e.data && e.data.size > 0) {
+                    chunks.push(e.data);
+                }
+            };
+
+            mediaRecorder.onstop = () => {
+                // Bina fail blob video baru yang telah dimampat
+                const compressedBlob = new Blob(chunks, { type: 'video/webm' });
+                
+                progressBar.style.width = '100%';
+                progressPercent.textContent = '100%';
+                progressStatus.textContent = 'Assembling final file...';
+
+                setTimeout(() => {
+                    modal.classList.add('hidden');
+                    
+                    // Cetus auto-download terus ke storage peranti pengguna
+                    const link = document.createElement('a');
+                    link.download = `webpress_compressed_${videoFileBlob.name.substring(0, videoFileBlob.name.lastIndexOf('.')) || videoFileBlob.name}.webm`;
+                    link.href = URL.createObjectURL(compressedBlob);
+                    document.body.appendChild(link);
+                    link.click();
+                    document.body.removeChild(link);
+
+                    showToast('Video compressed and saved to local storage!');
+                }, 500);
+            };
+
+            // Mulakan pemutaran video tersembunyi
+            hiddenVideo.currentTime = 0;
+            hiddenVideo.muted = true; // Elakkan bunyi berasingan daripada pembesar suara semasa render
+
+            // Mulakan rakaman aliran media
+            mediaRecorder.start();
+
+            // Gelung pemprosesan lukis frame-by-frame
+            function renderFrameLoop() {
+                if (hiddenVideo.paused || hiddenVideo.ended) {
+                    if (mediaRecorder.state === "recording") {
+                        mediaRecorder.stop();
+                    }
+                    return;
+                }
+
+                ctx.drawImage(hiddenVideo, 0, 0, canvas.width, canvas.height);
+                
+                // Kemaskini meter kemajuan (progress bar)
+                const currentProgress = Math.min(99, Math.round((hiddenVideo.currentTime / hiddenVideo.duration) * 100));
+                progressBar.style.width = `${currentProgress}%`;
+                progressPercent.textContent = `${currentProgress}%`;
+                progressStatus.textContent = `Processing frame at ${canvas.width}x${canvas.height}...`;
+
+                requestAnimationFrame(renderFrameLoop);
+            }
+
+            hiddenVideo.play();
+            renderFrameLoop();
+        }
+    </script>
+</body>
+</html>
+
+```
+

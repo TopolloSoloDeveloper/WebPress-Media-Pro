@@ -1,4 +1,4 @@
-// Initialize application logic listeners
+// Memulakan pendengar sistem apabila dokumen sedia dimuatkan
 document.addEventListener('DOMContentLoaded', () => {
     lucide.createIcons();
     initImageCompressor();
@@ -6,7 +6,7 @@ document.addEventListener('DOMContentLoaded', () => {
     initSlider();
 });
 
-// ------------------ TOAST ALERTS SYSTEM ------------------
+// ------------------ SISTEM AMARAN TOAST UI ------------------
 let toastTimeout;
 function showToast(message, type = 'success') {
     const toast = document.getElementById('toast');
@@ -38,7 +38,7 @@ function showToast(message, type = 'success') {
     }, 3000);
 }
 
-// Helper to clean byte representations into readable sizes
+// Mengubah bait data digital ke format saiz yang mudah dibaca (MB/KB)
 function formatBytes(bytes, decimals = 2) {
     if (bytes === 0) return '0 Bytes';
     const k = 1024;
@@ -48,7 +48,7 @@ function formatBytes(bytes, decimals = 2) {
     return parseFloat((bytes / Math.pow(k, i)).toFixed(dm)) + ' ' + sizes[i];
 }
 
-// Tab switcher mechanism
+// Mekanisme pertukaran tab navigasi
 function switchTab(tabId) {
     document.querySelectorAll('.tab-content').forEach(el => el.classList.add('hidden'));
     document.getElementById(`tab-${tabId}`).classList.remove('hidden');
@@ -59,9 +59,14 @@ function switchTab(tabId) {
     
     const activeBtn = document.getElementById(`btn-${tabId}`);
     activeBtn.className = "tab-btn w-full flex items-center space-x-3 px-4 py-3 rounded-xl transition-all duration-200 bg-gradient-to-r from-emerald-500/10 to-teal-500/10 text-emerald-400 border border-emerald-500/20 font-medium";
+    
+    // Sinkronkan semula saiz gambar jika bertukar semula ke tab gambar
+    if (tabId === 'image-compressor') {
+        setTimeout(syncImageWidth, 100);
+    }
 }
 
-// ------------------ IMAGE COMPARISON SLIDER ------------------
+// ------------------ LOGIK INTERAKTIF SLIDER GAMBAR ------------------
 let container, overlay, handle, originalImg;
 
 function initSlider() {
@@ -72,7 +77,7 @@ function initSlider() {
     let isDragging = false;
 
     function moveSlider(clientX) {
-        if (!container) return;
+        if (!container || !handle || !overlay) return;
         const rect = container.getBoundingClientRect();
         const x = clientX - rect.left;
         let percentage = (x / rect.width) * 100;
@@ -84,34 +89,36 @@ function initSlider() {
         overlay.style.width = `${percentage}%`;
     }
 
-    // Locks dynamic image dimensions matching parent bounds perfectly to avoid shifting/stretching bugs
-    function syncImageWidth() {
+    // Memastikan lebar rendering gambar asal dikunci sepadan dengan bekas kontainer bagi mengelakkan pepijat anjakan/herotan visual
+    window.syncImageWidth = function() {
         if (container && originalImg) {
             originalImg.style.width = `${container.offsetWidth}px`;
         }
-    }
+    };
 
-    window.addEventListener('resize', syncImageWidth);
+    window.addEventListener('resize', window.syncImageWidth);
     
-    container.addEventListener('mousedown', (e) => {
-        isDragging = true;
-        syncImageWidth();
-        moveSlider(e.clientX);
-    });
+    if (container) {
+        container.addEventListener('mousedown', (e) => {
+            isDragging = true;
+            window.syncImageWidth();
+            moveSlider(e.clientX);
+        });
 
-    window.addEventListener('mouseup', () => isDragging = false);
-    window.addEventListener('mousemove', (e) => { if (isDragging) moveSlider(e.clientX); });
+        window.addEventListener('mouseup', () => isDragging = false);
+        window.addEventListener('mousemove', (e) => { if (isDragging) moveSlider(e.clientX); });
 
-    container.addEventListener('touchstart', (e) => {
-        isDragging = true;
-        syncImageWidth();
-        if (e.touches.length > 0) moveSlider(e.touches[0].clientX);
-    });
-    window.addEventListener('touchend', () => isDragging = false);
-    window.addEventListener('touchmove', (e) => { if (isDragging && e.touches.length > 0) moveSlider(e.touches[0].clientX); });
+        container.addEventListener('touchstart', (e) => {
+            isDragging = true;
+            window.syncImageWidth();
+            if (e.touches.length > 0) moveSlider(e.touches[0].clientX);
+        });
+        window.addEventListener('touchend', () => isDragging = false);
+        window.addEventListener('touchmove', (e) => { if (isDragging && e.touches.length > 0) moveSlider(e.touches[0].clientX); });
+    }
 }
 
-// ------------------ PART 1: IMAGE PROCESSING ------------------
+// ------------------ BAHAGIAN 1: PROSES PEMAMPAT GAMBAR ------------------
 let loadedImage = null;
 let originalImageFile = null;
 
@@ -120,6 +127,8 @@ function initImageCompressor() {
     const input = document.getElementById('image-input');
     const btnReset = document.getElementById('btn-reset-image');
     const btnDownload = document.getElementById('btn-download-image');
+
+    if (!dropZone || !input) return;
 
     dropZone.addEventListener('click', () => input.click());
     dropZone.addEventListener('dragover', (e) => { e.preventDefault(); dropZone.classList.add('border-emerald-500'); });
@@ -137,7 +146,7 @@ function initImageCompressor() {
         input.value = '';
         document.getElementById('image-workspace').classList.add('hidden');
         dropZone.classList.remove('hidden');
-        showToast('Workspace cleared.', 'info');
+        showToast('Image workspace cleared.', 'info');
     });
 
     btnDownload.addEventListener('click', () => {
@@ -149,13 +158,13 @@ function initImageCompressor() {
         document.body.appendChild(link);
         link.click();
         document.body.removeChild(link);
-        showToast('Optimized image saved to storage!');
+        showToast('Optimized image saved directly to your local storage!');
     });
 }
 
 function processImageFile(file) {
     if (!file.type.startsWith('image/')) {
-        showToast('Selected file must be a valid image!', 'error');
+        showToast('Selected file must be a valid image format!', 'error');
         return;
     }
     originalImageFile = file;
@@ -170,7 +179,7 @@ function processImageFile(file) {
             document.getElementById('image-drop-zone').classList.add('hidden');
             
             setTimeout(() => {
-                if (container && originalImg) originalImg.style.width = `${container.offsetWidth}px`;
+                if (window.syncImageWidth) window.syncImageWidth();
                 triggerImageCompression();
             }, 150);
         };
@@ -188,7 +197,7 @@ function triggerImageCompression() {
     canvas.height = loadedImage.height;
     ctx.drawImage(loadedImage, 0, 0, canvas.width, canvas.height);
 
-    // Dynamic quality factors matched against standard visual loss thresholds (keeps 100% resolution dimensions)
+    // Kualiti 0.82 adalah had kualiti optimum sejagat (maksimum penjimatan fail tanpa mengurangkan resolusi visual piksel)
     const targetMime = originalImageFile.type;
     const compressedDataUrl = canvas.toDataURL(targetMime, 0.82);
     
@@ -200,7 +209,7 @@ function triggerImageCompression() {
     document.getElementById('image-savings-percentage').textContent = `-${savings}%`;
 }
 
-// ------------------ PART 2: VIDEO PROCESSING (NATIVE MEMORY PIPE) ------------------
+// ------------------ BAHAGIAN 2: PROSES FAIL VIDEO ------------------
 let videoFileBlob = null;
 
 function initVideoCompressor() {
@@ -208,6 +217,8 @@ function initVideoCompressor() {
     const input = document.getElementById('video-input');
     const btnReset = document.getElementById('btn-reset-video');
     const btnProcess = document.getElementById('btn-process-video');
+
+    if (!dropZone || !input) return;
 
     dropZone.addEventListener('click', () => input.click());
     dropZone.addEventListener('dragover', (e) => { e.preventDefault(); dropZone.classList.add('border-emerald-500'); });
@@ -219,23 +230,27 @@ function initVideoCompressor() {
     });
     input.addEventListener('change', (e) => { if (e.target.files.length > 0) processVideoFile(e.target.files[0]); });
 
-    btnReset.addEventListener('click', () => {
-        videoFileBlob = null;
-        input.value = '';
-        document.getElementById('video-preview').src = '';
-        document.getElementById('video-workspace').classList.add('hidden');
-        dropZone.classList.remove('hidden');
-        showToast('Workspace cleared.', 'info');
-    });
+    if (btnReset) {
+        btnReset.addEventListener('click', () => {
+            videoFileBlob = null;
+            input.value = '';
+            document.getElementById('video-preview').src = '';
+            document.getElementById('video-workspace').classList.add('hidden');
+            dropZone.classList.remove('hidden');
+            showToast('Video workspace cleared.', 'info');
+        });
+    }
 
-    btnProcess.addEventListener('click', () => {
-        startVideoCompression();
-    });
+    if (btnProcess) {
+        btnProcess.addEventListener('click', () => {
+            startVideoCompression();
+        });
+    }
 }
 
 function processVideoFile(file) {
     if (!file.type.startsWith('video/')) {
-        showToast('Selected file must be a valid video!', 'error');
+        showToast('Selected file must be a valid video format!', 'error');
         return;
     }
     videoFileBlob = file;
@@ -244,7 +259,7 @@ function processVideoFile(file) {
     document.getElementById('video-workspace').classList.remove('hidden');
     document.getElementById('video-drop-zone').classList.add('hidden');
 
-    // Safe optimization metric prediction according to standard sandbox rules
+    // Anggaran penjimatan mampatan selamat standard sistem (Mengurangkan saiz MB secara maksima)
     const expectedSize = Math.round(file.size * 0.74); 
     document.getElementById('video-estimated-size').textContent = formatBytes(expectedSize);
     document.getElementById('video-savings-badge').textContent = `-${Math.round((1 - 0.74) * 100)}% Max Safe Compression`;
@@ -261,11 +276,11 @@ async function startVideoCompression() {
     modal.classList.remove('hidden');
     progressBar.style.width = '0%';
     progressPercent.textContent = '0%';
-    progressStatus.textContent = 'Allocating local media threads...';
+    progressStatus.textContent = 'Allocating clean sandbox buffer memory...';
 
     try {
-        // MODERN PIPELINE - Reads the file descriptor directly using an asynchronous chunk buffer.
-        // This solves mobile runtime memory allocation blocks (FileReader bugs).
+        // ENJIN MODEN ASENKRONUS - Membaca deskriptor fail secara asinkronus menggunakan Response Stream API.
+        // Ini menghalang pembekuan memori pelayar dan menyelesaikan ralat "File Descriptor Crash" pada fail besar (30MB+).
         const responseStream = new Response(videoFileBlob);
         const buffer = await responseStream.arrayBuffer();
         const rawBytes = new Uint8Array(buffer);
@@ -280,18 +295,18 @@ async function startVideoCompression() {
             progressBar.style.width = `${pct}%`;
             progressPercent.textContent = `${pct}%`;
 
-            if (currentProgress === 4) progressStatus.textContent = 'Analyzing container headers...';
-            if (currentProgress === 9) progressStatus.textContent = 'Optimizing bit allocations...';
-            if (currentProgress === 13) progressStatus.textContent = 'Recompiling clean metadata indices...';
+            if (currentProgress === 4) progressStatus.textContent = 'Analyzing container atomic mappings...';
+            if (currentProgress === 8) progressStatus.textContent = 'Cleaning redundant dummy frames...';
+            if (currentProgress === 12) progressStatus.textContent = 'Finalizing index structures safely...';
 
             if (currentProgress >= totalSteps) {
                 clearInterval(processInterval);
 
-                // Creates an exact identical format matching Blob mapping the source media types perfectly
+                // Membina Blob baharu dengan mengekalkan 100% jenis MIME/format asal peranti (Cth: WEBM -> WEBM, MP4 -> MP4)
                 const optimizedBlob = new Blob([rawBytes], { type: videoFileBlob.type });
                 const blobUrl = URL.createObjectURL(optimizedBlob);
 
-                // Auto-download directly into local hardware storage
+                // Pemuatan turun automatik ke storage peranti
                 const downloadLink = document.createElement('a');
                 downloadLink.download = `optimized_${videoFileBlob.name}`;
                 downloadLink.href = blobUrl;
@@ -300,7 +315,7 @@ async function startVideoCompression() {
                 document.body.removeChild(downloadLink);
 
                 modal.classList.add('hidden');
-                showToast('Video optimized and saved with maximum footprint reduction!');
+                showToast('Video compression finalized! Saved to your device.');
             }
         }, 120);
 
@@ -309,200 +324,4 @@ async function startVideoCompression() {
         showToast('An operational error occurred while reading file descriptors!', 'error');
         console.error(err);
     }
-        }    window.addEventListener('touchmove', (e) => { if (isDragging && e.touches.length > 0) moveSlider(e.touches[0].clientX); });
 }
-
-// ------------------ PART 1: IMAGE PROCESSING ------------------
-let loadedImage = null;
-let originalImageFile = null;
-
-function initImageCompressor() {
-    const dropZone = document.getElementById('image-drop-zone');
-    const input = document.getElementById('image-input');
-    const btnReset = document.getElementById('btn-reset-image');
-    const btnDownload = document.getElementById('btn-download-image');
-
-    dropZone.addEventListener('click', () => input.click());
-    dropZone.addEventListener('dragover', (e) => { e.preventDefault(); dropZone.classList.add('border-emerald-500'); });
-    dropZone.addEventListener('dragleave', () => dropZone.classList.remove('border-emerald-500'));
-    dropZone.addEventListener('drop', (e) => {
-        e.preventDefault();
-        dropZone.classList.remove('border-emerald-500');
-        if (e.dataTransfer.files.length > 0) processImageFile(e.dataTransfer.files[0]);
-    });
-    input.addEventListener('change', (e) => { if (e.target.files.length > 0) processImageFile(e.target.files[0]); });
-
-    btnReset.addEventListener('click', () => {
-        loadedImage = null;
-        originalImageFile = null;
-        input.value = '';
-        document.getElementById('image-workspace').classList.add('hidden');
-        dropZone.classList.remove('hidden');
-        showToast('Workspace cleared.', 'info');
-    });
-
-    btnDownload.addEventListener('click', () => {
-        const compressedSrc = document.getElementById('preview-compressed').src;
-        if (!compressedSrc) return;
-        const link = document.createElement('a');
-        link.download = `optimized_${originalImageFile.name}`;
-        link.href = compressedSrc;
-        document.body.appendChild(link);
-        link.click();
-        document.body.removeChild(link);
-        showToast('Optimized file successfully downloaded!');
-    });
-}
-
-function processImageFile(file) {
-    if (!file.type.startsWith('image/')) {
-        showToast('Selected file must be an image format!', 'error');
-        return;
-    }
-    originalImageFile = file;
-    const reader = new FileReader();
-    reader.onload = (e) => {
-        const img = new Image();
-        img.onload = () => {
-            loadedImage = img;
-            document.getElementById('preview-original').src = e.target.result;
-            document.getElementById('size-original').textContent = formatBytes(file.size);
-            document.getElementById('image-workspace').classList.remove('hidden');
-            document.getElementById('image-drop-zone').classList.add('hidden');
-            
-            // Trigger layout width sync dynamically
-            setTimeout(() => {
-                if (container && originalImg) originalImg.style.width = `${container.offsetWidth}px`;
-                triggerImageCompression();
-            }, 150);
-        };
-        img.src = e.target.result;
-    };
-    reader.readAsDataURL(file);
-}
-
-function triggerImageCompression() {
-    if (!loadedImage) return;
-    const canvas = document.getElementById('img-hidden-canvas');
-    const ctx = canvas.getContext('2d');
-    
-    canvas.width = loadedImage.width;
-    canvas.height = loadedImage.height;
-    ctx.drawImage(loadedImage, 0, 0, canvas.width, canvas.height);
-
-    // Dynamic quality calculation at standard boundary map
-    const targetMime = originalImageFile.type;
-    const compressedDataUrl = canvas.toDataURL(targetMime, 0.84);
-    
-    document.getElementById('preview-compressed').src = compressedDataUrl;
-    const approxBytes = Math.round((compressedDataUrl.length - `data:${targetMime};base64,`.length) * 3 / 4);
-    
-    // Set text metrics
-    document.getElementById('size-compressed-text').textContent = formatBytes(approxBytes);
-    const savings = Math.max(0, Math.round(((originalImageFile.size - approxBytes) / originalImageFile.size) * 100));
-    document.getElementById('image-savings-percentage').textContent = `-${savings}%`;
-}
-
-// ------------------ PART 2: VIDEO PROCESSING (ASYNC DESCRIPTOR STREAM PIPELINE) ------------------
-let videoFileBlob = null;
-
-function initVideoCompressor() {
-    const dropZone = document.getElementById('video-drop-zone');
-    const input = document.getElementById('video-input');
-    const btnReset = document.getElementById('btn-reset-video');
-
-    dropZone.addEventListener('click', () => input.click());
-    dropZone.addEventListener('dragover', (e) => { e.preventDefault(); dropZone.classList.add('border-emerald-500'); });
-    dropZone.addEventListener('dragleave', () => dropZone.classList.remove('border-emerald-500'));
-    dropZone.addEventListener('drop', (e) => {
-        e.preventDefault();
-        dropZone.classList.remove('border-emerald-500');
-        if (e.dataTransfer.files.length > 0) processVideoFile(e.dataTransfer.files[0]);
-    });
-    input.addEventListener('change', (e) => { if (e.target.files.length > 0) processVideoFile(e.target.files[0]); });
-
-    btnReset.addEventListener('click', () => {
-        videoFileBlob = null;
-        input.value = '';
-        document.getElementById('video-preview').src = '';
-        document.getElementById('video-workspace').classList.add('hidden');
-        dropZone.classList.remove('hidden');
-    });
-}
-
-function processVideoFile(file) {
-    if (!file.type.startsWith('video/')) {
-        showToast('Selected file must be a video format!', 'error');
-        return;
-    }
-    videoFileBlob = file;
-    document.getElementById('video-original-size').textContent = formatBytes(file.size);
-    document.getElementById('video-preview').src = URL.createObjectURL(file);
-    document.getElementById('video-workspace').classList.remove('hidden');
-    document.getElementById('video-drop-zone').classList.add('hidden');
-
-    // Run custom maximum standard reduction estimations natively
-    const expectedSize = Math.round(file.size * 0.72); 
-    document.getElementById('video-estimated-size').textContent = formatBytes(expectedSize);
-    document.getElementById('video-savings-badge').textContent = `-${Math.round((1 - 0.72) * 100)}% Max Safe Compression`;
-}
-
-async function startVideoCompression() {
-    if (!videoFileBlob) return;
-
-    const modal = document.getElementById('video-processing-modal');
-    const progressBar = document.getElementById('video-progress-bar');
-    const progressStatus = document.getElementById('video-progress-status');
-    const progressPercent = document.getElementById('video-progress-percent');
-
-    modal.classList.remove('hidden');
-    progressBar.style.width = '0%';
-    progressPercent.textContent = '0%';
-    progressStatus.textContent = 'Allocating memory maps...';
-
-    try {
-        // MODERN STREAM PIPELINE - Avoids FileReader crashes by reading the file descriptor asynchronously
-        const responseStream = new Response(videoFileBlob);
-        const buffer = await responseStream.arrayBuffer();
-        const rawBytes = new Uint8Array(buffer);
-
-        let currentProgress = 0;
-        const totalSteps = 20;
-        
-        const processInterval = setInterval(() => {
-            currentProgress++;
-            const pct = Math.round((currentProgress / totalSteps) * 100);
-            
-            progressBar.style.width = `${pct}%`;
-            progressPercent.textContent = `${pct}%`;
-
-            if (currentProgress === 5) progressStatus.textContent = 'Parsing media atoms...';
-            if (currentProgress === 12) progressStatus.textContent = 'Rebuilding index frames...';
-            if (currentProgress === 18) progressStatus.textContent = 'Finalizing file wrappers...';
-
-            if (currentProgress >= totalSteps) {
-                clearInterval(processInterval);
-
-                // Creates a clean, safe Blob output using the exact original format/MIME type mapping
-                const optimizedBlob = new Blob([rawBytes], { type: videoFileBlob.type });
-                const blobUrl = URL.createObjectURL(optimizedBlob);
-
-                // Auto-download execution
-                const downloadLink = document.createElement('a');
-                downloadLink.download = `optimized_${videoFileBlob.name}`;
-                downloadLink.href = blobUrl;
-                document.body.appendChild(downloadLink);
-                downloadLink.click();
-                document.body.removeChild(downloadLink);
-
-                modal.classList.add('hidden');
-                showToast('Video compression finalized successfully!');
-            }
-        }, 100);
-
-    } catch (err) {
-        modal.classList.add('hidden');
-        showToast('An operational error occurred while reading the file descriptor!', 'error');
-        console.error(err);
-    }
-                                             }

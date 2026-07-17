@@ -62,7 +62,17 @@
     pointer-events: none;
 }
 
-/* Clear video optimization spacing boundaries */
+/* Explicit backdrop colors to protect rendering sandbox layout */
 video {
     background-color: #020617;
+}
+
+/* Custom fade-in presentation helper */
+.animate-fade-in {
+    animation: fadeIn 0.25s ease-out forwards;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(4px); }
+    to { opacity: 1; transform: translateY(0); }
 }

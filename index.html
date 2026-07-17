@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+t<!DOCTYPE html>
 <html lang="en" class="dark">
 <head>
     <meta charset="UTF-8">
@@ -162,3 +162,159 @@
     <script src="script.js"></script>
 </body>
 </html>
+<!-- Workspace Navigation Interface Tabs Switcher Links -->
+        <div class="flex items-center justify-center border-b border-slate-200 dark:border-slate-900 pb-px max-w-sm mx-auto">
+            <button id="tab-trigger-image" class="w-1/2 text-center pb-3 font-semibold text-sm border-b-2 border-emerald-500 text-emerald-500 transition-all duration-200">
+                Image Suite
+            </button>
+            <button id="tab-trigger-video" class="w-1/2 text-center pb-3 font-semibold text-sm border-b-2 border-transparent text-slate-400 hover:text-slate-200 transition-all duration-200">
+                Video Suite
+            </button>
+        </div>
+
+        <!-- WORKSPACE PANEL 2: VIDEO OPTIMIZER SUITE WRAPPER (Hidden by default) -->
+        <div id="workspace-video-suite" class="hidden space-y-8 animate-fade-in">
+            
+            <!-- Video System Configuration Metric Selector Parameters Block -->
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6 bg-slate-50 dark:bg-slate-950/50 p-5 rounded-2xl border border-slate-200/60 dark:border-slate-900 transition-colors duration-300">
+                
+                <!-- Video Bitrate/Profile Target Compression Quality Selectors -->
+                <div class="space-y-2.5">
+                    <label class="text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400 flex items-center gap-1.5">
+                        <i data-lucide="video-off" class="w-4 h-4 text-emerald-500"></i> Video Footprint Limit
+                    </label>
+                    <div class="grid grid-cols-3 gap-2">
+                        <button id="btn-vid-low" data-level="low" class="vid-comp-btn px-4 py-2.5 rounded-xl border font-semibold text-xs text-center transition-all duration-200 bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-800 text-slate-600 dark:text-slate-400">
+                            Eco Size
+                        </button>
+                        <button id="btn-vid-medium" data-level="medium" class="vid-comp-btn px-4 py-2.5 rounded-xl border font-semibold text-xs text-center transition-all duration-200 bg-gradient-to-r from-emerald-500/10 to-teal-500/10 text-emerald-600 dark:text-emerald-400 border-emerald-500/20 shadow-sm shadow-emerald-500/5">
+                            Balanced
+                        </button>
+                        <button id="btn-vid-high" data-level="high" class="vid-comp-btn px-4 py-2.5 rounded-xl border font-semibold text-xs text-center transition-all duration-200 bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-800 text-slate-600 dark:text-slate-400">
+                            Max Bitrate
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Video Target Export Container Selector Options Buttons -->
+                <div class="space-y-2.5">
+                    <label class="text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400 flex items-center gap-1.5">
+                        <i data-lucide="clapperboard" class="w-4 h-4 text-emerald-500"></i> Container Wrapper
+                    </label>
+                    <div class="grid grid-cols-4 gap-2">
+                        <button id="btn-vfmt-original" data-format="original" class="vid-fmt-btn px-2 py-2.5 rounded-xl border font-semibold text-xs text-center transition-all duration-200 bg-gradient-to-r from-emerald-500/10 to-teal-500/10 text-emerald-600 dark:text-emerald-400 border-emerald-500/20 shadow-sm shadow-emerald-500/5">
+                            Original
+                        </button>
+                        <button id="btn-vfmt-mp4" data-format="video/mp4" class="vid-fmt-btn px-2 py-2.5 rounded-xl border font-semibold text-xs text-center transition-all duration-200 bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-800 text-slate-600 dark:text-slate-400">
+                            MP4
+                        </button>
+                        <button id="btn-vfmt-webm" data-format="video/webm" class="vid-fmt-btn px-2 py-2.5 rounded-xl border font-semibold text-xs text-center transition-all duration-200 bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-800 text-slate-600 dark:text-slate-400">
+                            WebM
+                        </button>
+                        <button id="btn-vfmt-mkv" data-format="video/x-matroska" class="vid-fmt-btn px-2 py-2.5 rounded-xl border font-semibold text-xs text-center transition-all duration-200 bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-800 text-slate-600 dark:text-slate-400">
+                            MKV
+                        </button>
+                    </div>
+                </div>
+            </div>
+            <!-- Video File Drop Target Upload Box Container Area -->
+            <div id="video-drop-zone" class="border-2 border-dashed border-slate-300 dark:border-slate-800 hover:border-emerald-500/50 dark:hover:border-emerald-500/40 bg-slate-50/50 dark:bg-slate-950/30 hover:bg-emerald-500/[0.01] rounded-2xl p-8 sm:p-12 text-center cursor-pointer transition-all duration-300 group relative">
+                <input type="file" id="video-file-input" accept="video/mp4, video/webm, video/ogg, video/quicktime, video/x-matroska" class="hidden">
+                <div class="flex flex-col items-center justify-center space-y-4">
+                    <div class="p-4 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl text-slate-400 dark:text-slate-500 group-hover:text-emerald-500 group-hover:border-emerald-500/20 group-hover:shadow-lg group-hover:shadow-emerald-500/5 transition-all duration-300">
+                        <i data-lucide="video" class="w-8 h-8"></i>
+                    </div>
+                    <div>
+                        <p class="text-sm font-medium text-slate-700 dark:text-slate-300">
+                            Drag & drop your video source here, or <span class="text-emerald-500 font-semibold group-hover:underline">browse files</span>
+                        </p>
+                        <p class="text-xs text-slate-400 mt-1">Supports standard wrappers (MP4, WebM, MKV, MOV up to 100MB)</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Single Video Processing Sandbox Workspace Panel (Hidden by default) -->
+            <div id="video-sandbox-workspace" class="hidden grid grid-cols-1 lg:grid-cols-3 gap-6 bg-slate-50 dark:bg-slate-950/30 p-5 rounded-2xl border border-slate-200/60 dark:border-slate-900 transition-all duration-300">
+                
+                <!-- Left Frame: Local Player Source Monitor Container -->
+                <div class="lg:col-span-2 space-y-3">
+                    <div class="aspect-video w-full bg-slate-950 rounded-xl border border-slate-200 dark:border-slate-800 overflow-hidden relative flex items-center justify-center shadow-inner">
+                        <video id="video-preview-player" controls class="w-full h-full max-h-full object-contain"></video>
+                    </div>
+                    <div class="flex items-center justify-between px-1">
+                        <h5 id="video-meta-name" class="text-xs font-bold text-slate-700 dark:text-slate-300 truncate max-w-xs sm:max-w-md">video_filename.mp4</h5>
+                        <span id="video-meta-duration" class="text-[10px] bg-slate-200 dark:bg-slate-800 text-slate-600 dark:text-slate-400 px-2 py-0.5 rounded font-mono font-bold">00:00</span>
+                    </div>
+                </div>
+
+                <!-- Right Frame: Analytical Status Parameters Dashboard -->
+                <div class="flex flex-col justify-between bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 p-5 rounded-xl space-y-6 shadow-sm">
+                    <div class="space-y-4">
+                        <h4 class="text-xs font-bold uppercase tracking-wider text-slate-400 flex items-center gap-1.5 border-b border-slate-100 dark:border-slate-800 pb-2">
+                            <i data-lucide="bar-chart-3" class="w-4 h-4 text-emerald-500"></i> Stream Metrics
+                        </h4>
+                        
+                        <!-- Track Attributes Output Table -->
+                        <div class="space-y-2.5">
+                            <div class="flex justify-between text-xs">
+                                <span class="text-slate-400 font-medium">Source Allocation:</span>
+                                <span id="video-size-original" class="font-bold text-slate-700 dark:text-slate-300">0.00 MB</span>
+                            </div>
+                            <div class="flex justify-between text-xs">
+                                <span class="text-slate-400 font-medium">Target Footprint (Est):</span>
+                                <span id="video-size-estimated" class="font-bold text-emerald-500">0.00 MB</span>
+                            </div>
+                            <div class="flex justify-between text-xs">
+                                <span class="text-slate-400 font-medium">Efficiency Scale:</span>
+                                <span id="video-savings-projection" class="font-bold text-emerald-400 bg-emerald-500/10 px-1.5 py-0.5 rounded text-[10px] uppercase">Optimized</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Processing Terminal Interlock Command Triggers -->
+                    <div class="space-y-2 pt-4 border-t border-slate-100 dark:border-slate-800">
+                        <button id="btn-video-process" class="w-full py-3 bg-gradient-to-r from-emerald-500 to-teal-500 hover:from-emerald-600 hover:to-teal-600 text-slate-950 font-bold rounded-xl text-xs transition-all duration-200 shadow-md shadow-emerald-500/10 flex items-center justify-center gap-1.5 tracking-wide uppercase">
+                            <i data-lucide="zap" class="w-4 h-4 fill-current"></i> Compress Video
+                        </button>
+                        <button id="btn-video-reset" class="w-full py-2.5 border border-slate-200 dark:border-slate-800 hover:border-rose-500/20 bg-slate-50 dark:bg-slate-950/40 text-slate-500 hover:text-rose-500 rounded-xl font-medium text-xs transition-all duration-200 flex items-center justify-center gap-1.5">
+                            <i data-lucide="rotate-ccw" class="w-3.5 h-3.5"></i> Clear Session
+                        </button>
+                    </div>
+                </div>
+
+            </div>
+                            </div>
+                            <!-- Video Processing Multi-Stream Asynchronous Status HUD Modal Overlay -->
+    <div id="video-processing-modal" class="hidden fixed inset-0 bg-slate-950/80 backdrop-blur-md z-[100] flex items-center justify-center p-4 transition-all duration-300">
+        <div class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-3xl p-6 w-full max-w-sm shadow-2xl space-y-5 text-center transform scale-95 transition-all duration-300">
+            
+            <!-- Dynamic Vector Processing Loader Indicators -->
+            <div class="relative w-16 h-16 mx-auto flex items-center justify-center">
+                <div class="absolute inset-0 rounded-full border-4 border-slate-100 dark:border-slate-800"></div>
+                <div class="absolute inset-0 rounded-full border-4 border-t-emerald-500 animate-spin"></div>
+                <i data-lucide="cpu" class="w-6 h-6 text-emerald-400 animate-pulse"></i>
+            </div>
+
+            <!-- Operational Context Descriptions -->
+            <div class="space-y-1">
+                <h4 class="text-sm font-bold text-slate-800 dark:text-slate-200 uppercase tracking-wider">Compacting Media Stream</h4>
+                <p id="video-progress-status" class="text-xs text-slate-400">Initializing block-level stream alignment...</p>
+            </div>
+
+            <!-- Granular Metric Percentage Loading Bar Component Layout -->
+            <div class="space-y-2">
+                <div class="w-full bg-slate-100 dark:bg-slate-950 rounded-full h-2 overflow-hidden border border-slate-200/50 dark:border-slate-800">
+                    <div id="video-progress-bar" class="bg-gradient-to-r from-emerald-500 to-teal-500 h-full w-0 transition-all duration-150"></div>
+                </div>
+                <div class="flex justify-between items-center text-[11px] text-slate-400 font-mono">
+                    <span>Local Allocation</span>
+                    <span id="video-progress-percent" class="font-bold text-emerald-400">0%</span>
+                </div>
+            </div>
+            
+            <!-- Informational Sandbox Notice Footer Tag -->
+            <p class="text-[10px] text-slate-400 dark:text-slate-500 leading-normal">
+                Transcoding segments via sandboxed Object URL streaming blocks. Keep browser active.
+            </p>
+        </div>
+    </div>

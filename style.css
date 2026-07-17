@@ -95,3 +95,87 @@ input[type="range"]::-webkit-slider-thumb:hover {
 .comp-btn:active, .fmt-btn:active {
     transform: scale(0.98);
 }
+/* Video Core Viewport Aspect Constraints */
+.aspect-video {
+    position: relative;
+    aspect-ratio: 16 / 9;
+}
+
+/* Modal Blur Backdrop Layer Animations */
+#video-processing-modal {
+    transition: opacity 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+#video-processing-modal.hidden {
+    display: none !important;
+    opacity: 0;
+}
+
+#video-processing-modal:not(.hidden) {
+    opacity: 1;
+}
+
+/* Linear Stream Data Grid List Elements overrides */
+.vid-comp-btn, .vid-fmt-btn {
+    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.vid-comp-btn:active, .vid-fmt-btn:active {
+    transform: scale(0.97);
+}
+/* Custom Native Media Controller Layer Overrides */
+video::-webkit-media-controls-panel {
+    background-image: linear-gradient(to top, rgba(2, 6, 23, 0.85), rgba(2, 6, 23, 0));
+}
+
+video::-webkit-media-controls-play-button,
+video::-webkit-media-controls-current-time-display,
+video::-webkit-media-controls-time-remaining-display,
+video::-webkit-media-controls-timeline,
+video::-webkit-media-controls-volume-slider,
+video::-webkit-media-controls-mute-button,
+video::-webkit-media-controls-fullscreen-button {
+    filter: invert(1) hue-rotate(60deg) saturate(1.5);
+}
+
+/* Modal Inner Container Transform Target Transitions */
+#video-processing-modal > div {
+    transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+#video-processing-modal.hidden > div {
+    transform: scale(0.95) translateY(10px);
+}
+
+#video-processing-modal:not(.hidden) > div {
+    transform: scale(1) translateY(0);
+}
+
+/* Progress Bar Shine Glow Animation Effect */
+#video-progress-bar {
+    position: relative;
+    overflow: hidden;
+}
+
+#video-progress-bar::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: linear-gradient(
+        90deg,
+        rgba(255, 255, 255, 0) 0%,
+        rgba(255, 255, 255, 0.3) 50%,
+        rgba(255, 255, 255, 0) 100%
+    );
+    animation: progressShine 1.5s infinite;
+    transform: translateX(-100%);
+}
+
+@keyframes progressShine {
+    100% {
+        transform: translateX(100%);
+    }
+}

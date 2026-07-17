@@ -1,9 +1,9 @@
-/* Typography Configuration Framework rules overrides */
+/* Typography Configuration Framework overrides */
 body {
     font-family: 'Inter', sans-serif;
 }
 
-/* Custom Scrollbar configurations for embedded data listings */
+/* Custom Scrollbar configurations for embedded multi-file queue containers */
 ::-webkit-scrollbar {
     width: 6px;
     height: 6px;
@@ -41,7 +41,12 @@ body {
     }
 }
 
-/* Form factor configuration overrides for inputs inside dropzones */
+/* Structural container overrides for dynamic card layout alignment loops */
+.queue-item-card {
+    transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+/* Quality slider customization layout metrics definitions */
 input[type="range"] {
     -webkit-appearance: none;
     appearance: none;

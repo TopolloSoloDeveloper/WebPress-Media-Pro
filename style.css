@@ -1,80 +1,71 @@
-/* Image Comparison Slider Layout Positioning Rules */
-.comparison-slider {
-    position: relative;
-    overflow: hidden;
-    width: 100%;
-    height: 100%;
+/* Typography Configuration Framework rules overrides */
+body {
+    font-family: 'Inter', sans-serif;
 }
 
-.comparison-img {
-    display: block;
-    width: 100%;
-    height: 100%;
-    object-fit: contain;
-    pointer-events: none;
+/* Custom Scrollbar configurations for embedded data listings */
+::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
+}
+::-webkit-scrollbar-track {
+    background: transparent;
+}
+::-webkit-scrollbar-thumb {
+    background: #cbd5e1;
+    border-radius: 4px;
+}
+.dark ::-webkit-scrollbar-thumb {
+    background: #334155;
+}
+::-webkit-scrollbar-thumb:hover {
+    background: #94a3b8;
+}
+.dark ::-webkit-scrollbar-thumb:hover {
+    background: #475569;
 }
 
-.img-overlay {
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 50%;
-    height: 100%;
-    overflow: hidden;
-    pointer-events: none;
-}
-
-/* This preserves pixel mapping consistency during sliding manipulation */
-.comparison-img-original {
-    display: block;
-    height: 100%;
-    object-fit: contain;
-    pointer-events: none;
-    max-width: none;
-}
-
-.slider-handle {
-    position: absolute;
-    top: 0;
-    bottom: 0;
-    width: 4px;
-    background: #10b981;
-    cursor: ew-resize;
-    z-index: 10;
-    box-shadow: 0 0 10px rgba(16, 185, 129, 0.5);
-    transform: translateX(-50%);
-}
-
-.slider-button {
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-    width: 36px;
-    height: 36px;
-    background-color: #10b981;
-    color: #020617;
-    border-radius: 50%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.4);
-    pointer-events: none;
-}
-
-/* Explicit backdrop and aspect controls to protect rendering sandbox layout */
-video {
-    background-color: #020617;
-    max-height: 100%;
-    max-width: 100%;
-}
-
-/* Custom fade-in presentation helper */
+/* Custom CSS Presentation Animations rules */
 .animate-fade-in {
-    animation: fadeIn 0.25s ease-out forwards;
+    animation: fadeIn 0.3s ease-out forwards;
 }
 
 @keyframes fadeIn {
-    from { opacity: 0; transform: translateY(4px); }
-    to { opacity: 1; transform: translateY(0); }
+    from {
+        opacity: 0;
+        transform: translateY(6px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* Form factor configuration overrides for inputs inside dropzones */
+input[type="range"] {
+    -webkit-appearance: none;
+    appearance: none;
+    background: transparent;
+    cursor: pointer;
+}
+input[type="range"]::-webkit-slider-runnable-track {
+    background: #e2e8f0;
+    height: 0.5rem;
+    border-radius: 9999px;
+}
+.dark input[type="range"]::-webkit-slider-runnable-track {
+    background: #1e293b;
+}
+input[type="range"]::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    appearance: none;
+    margin-top: -4px;
+    background-color: #10b981;
+    height: 1rem;
+    width: 1rem;
+    border-radius: 9999px;
+    transition: transform 0.1s ease;
+}
+input[type="range"]::-webkit-slider-thumb:hover {
+    transform: scale(1.15);
 }

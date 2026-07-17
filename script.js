@@ -1,20 +1,20 @@
-// Application Memory State Scopes
-let activeCompressionPreset = 'medium'; // low, medium, high
-let globalTargetFormat = 'original';     // original, image/jpeg, image/png, image/webp
+// Global State Scopes
+let activeCompressionPreset = 'medium'; 
+let globalTargetFormat = 'original';     
 let globalFilesQueue = [];
 
-// Dictionary holding target compression parameter ratios
 const COMPRESSION_MAP = {
     'low': 0.90,
     'medium': 0.75,
     'high': 0.55
 };
 
-// Document Mount Execution Flow
+// Document Mount Initialization Setup
 document.addEventListener('DOMContentLoaded', () => {
     lucide.createIcons();
     initThemeEngine();
     initUploadPipeline();
+    initGlobalActionListeners();
 });
 
 // ------------------ LIGHT / DARK THEME ENGINE ------------------
@@ -23,7 +23,8 @@ function initThemeEngine() {
     const themeIcon = document.getElementById('theme-icon');
     const html = document.documentElement;
 
-    // Check system preference fallback or cached configuration properties
+    if (!themeToggle || !themeIcon) return;
+
     const cachedTheme = localStorage.getItem('webpress-theme');
     if (cachedTheme === 'light') {
         html.classList.remove('dark');
@@ -48,34 +49,70 @@ function initThemeEngine() {
     });
 }
 
-// ------------------ GLOBAL CORE CONFIGURATION TRIGGERS ------------------
-window.setCompression = function(level) {
+// ------------------ DOM EVENT LISTENERS BINDINGS ------------------
+function initGlobalActionListeners() {
+    // 1. Compression Button Preset Listeners
+    document.querySelectorAll('.comp-btn').forEach(btn => {
+        btn.addEventListener('click', (e) => {
+            const selectedLevel = e.currentTarget.getAttribute('data-level');
+            setCompressionPreset(selectedLevel);
+        });
+    });
+
+    // 2. Target Format Extension Selector Listeners
+    document.querySelectorAll('.fmt-btn').forEach(btn => {
+        btn.addEventListener('click', (e) => {
+            const selectedFormat = e.currentTarget.getAttribute('data-format');
+            setTargetFormatPreset(selectedFormat);
+        });
+    });
+
+    // 3. Clear Queue Global Trigger Action Listener
+    const clearAllBtn = document.getElementById('btn-clear-all');
+    if (clearAllBtn) {
+        clearAllBtn.addEventListener('click', () => {
+            clearAllQueue();
+        });
+    }
+
+    // 4. Download Queue Global Trigger Action Listener
+    const downloadAllBtn = document.getElementById('btn-download-all');
+    if (downloadAllBtn) {
+        downloadAllBtn.addEventListener('click', () => {
+            downloadAllProcessed();
+        });
+    }
+}
+
+// ------------------ CORE STATE MANIPULATION MUTATORS ------------------
+function setCompressionPreset(level) {
     activeCompressionPreset = level;
     document.querySelectorAll('.comp-btn').forEach(btn => {
         btn.className = "comp-btn px-4 py-2.5 rounded-xl border font-semibold text-xs text-center transition-all duration-200 bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-800 text-slate-600 dark:text-slate-400";
     });
+    
     const activeBtn = document.getElementById(`btn-comp-${level}`);
     if (activeBtn) {
         activeBtn.className = "comp-btn px-4 py-2.5 rounded-xl border font-semibold text-xs text-center transition-all duration-200 bg-gradient-to-r from-emerald-500/10 to-teal-500/10 text-emerald-600 dark:text-emerald-400 border-emerald-500/20 shadow-sm shadow-emerald-500/5";
     }
-    // Re-process current batch using new preset flags
     reprocessCurrentQueue();
-};
+}
 
-window.setTargetFormat = function(format) {
+function setTargetFormatPreset(format) {
     globalTargetFormat = format;
     document.querySelectorAll('.fmt-btn').forEach(btn => {
         btn.className = "fmt-btn px-3 py-2.5 rounded-xl border font-semibold text-xs text-center transition-all duration-200 bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-800 text-slate-600 dark:text-slate-400";
     });
+    
     const selectorId = format === 'original' ? 'original' : format.split('/')[1];
     const activeBtn = document.getElementById(`btn-fmt-${selectorId}`);
     if (activeBtn) {
         activeBtn.className = "fmt-btn px-3 py-2.5 rounded-xl border font-semibold text-xs text-center transition-all duration-200 bg-gradient-to-r from-emerald-500/10 to-teal-500/10 text-emerald-600 dark:text-emerald-400 border-emerald-500/20 shadow-sm shadow-emerald-500/5";
     }
     reprocessCurrentQueue();
-};
+}
 
-// ------------------ DATA UPLOAD CORE PIPELINE ------------------
+// ------------------ FILE UPLOAD SUB-ROUTINES ------------------
 function initUploadPipeline() {
     const dropZone = document.getElementById('drop-zone');
     const fileInput = document.getElementById('file-input');
@@ -123,46 +160,52 @@ function handleIncomingFilesList(filesList) {
     syncQueueHeaderState();
 }
 
-// ------------------ DYNAMIC UI RENDERING INJECTORS ------------------
+// ------------------ WORKSPACE QUEUE ELEMENT GENERATION ------------------
 function renderQueueItemSkeleton(item) {
     const queueWrapper = document.getElementById('image-processing-queue');
     if (!queueWrapper) return;
 
-    const itemHtml = `
-        <div id="${item.id}" class="bg-white dark:bg-slate-900/60 border border-slate-200 dark:border-slate-800 rounded-2xl p-4 flex flex-col md:flex-row items-center justify-between gap-4 transition-all duration-200 hover:border-slate-300 dark:hover:border-slate-700 animate-fade-in">
-            <div class="flex items-center space-x-4 w-full md:w-auto">
-                <div class="w-14 h-14 bg-slate-100 dark:bg-slate-950 rounded-xl border border-slate-200 dark:border-slate-800 overflow-hidden flex items-center justify-center relative shrink-0">
-                    <img id="img-preview-${item.id}" class="w-full h-full object-cover hidden" alt="Preview">
-                    <div id="loader-${item.id}" class="animate-spin text-emerald-500">
-                        <i data-lucide="loader-2" class="w-5 h-5"></i>
-                    </div>
-                </div>
-                <div class="overflow-hidden max-w-[200px] sm:max-w-xs md:max-w-sm lg:max-w-md">
-                    <h5 class="text-xs font-bold text-slate-800 dark:text-slate-200 truncate">${item.originalName}</h5>
-                    <p class="text-[11px] text-slate-400 mt-0.5 uppercase tracking-wider font-semibold">Original: ${formatBytes(item.originalSize)}</p>
+    const rowWrapper = document.createElement('div');
+    rowWrapper.id = item.id;
+    rowWrapper.className = "bg-white dark:bg-slate-900/60 border border-slate-200 dark:border-slate-800 rounded-2xl p-4 flex flex-col md:flex-row items-center justify-between gap-4 transition-all duration-200 hover:border-slate-300 dark:hover:border-slate-700 animate-fade-in";
+    
+    rowWrapper.innerHTML = `
+        <div class="flex items-center space-x-4 w-full md:w-auto">
+            <div class="w-14 h-14 bg-slate-100 dark:bg-slate-950 rounded-xl border border-slate-200 dark:border-slate-800 overflow-hidden flex items-center justify-center relative shrink-0">
+                <img id="img-preview-${item.id}" class="w-full h-full object-cover hidden" alt="Preview">
+                <div id="loader-${item.id}" class="animate-spin text-emerald-500">
+                    <i data-lucide="loader-2" class="w-5 h-5"></i>
                 </div>
             </div>
+            <div class="overflow-hidden max-w-[200px] sm:max-w-xs md:max-w-sm lg:max-w-md">
+                <h5 class="text-xs font-bold text-slate-800 dark:text-slate-200 truncate">${item.originalName}</h5>
+                <p class="text-[11px] text-slate-400 mt-0.5 uppercase tracking-wider font-semibold">Original: ${formatBytes(item.originalSize)}</p>
+            </div>
+        </div>
 
-            <!-- Operational Metrics Box Placement -->
-            <div class="flex items-center justify-between md:justify-end w-full md:w-auto gap-4 sm:gap-6 border-t md:border-t-0 pt-3 md:pt-0 border-slate-100 dark:border-slate-800">
-                <div class="text-left md:text-right space-y-0.5">
-                    <p id="metrics-size-${item.id}" class="text-xs font-bold text-slate-400">Processing...</p>
-                    <p id="metrics-saved-${item.id}" class="text-[10px] text-emerald-500 font-extrabold tracking-wide uppercase"></p>
-                </div>
-                
-                <div class="flex items-center space-x-2">
-                    <button onclick="downloadSingleItem('${item.id}')" id="btn-dl-${item.id}" disabled class="opacity-40 p-2.5 bg-slate-100 dark:bg-slate-950 hover:bg-emerald-500/10 text-slate-400 hover:text-emerald-500 rounded-xl border border-slate-200 dark:border-slate-800 transition-all duration-200">
-                        <i data-lucide="download" class="w-4 h-4"></i>
-                    </button>
-                    <button onclick="removeSingleQueueItem('${item.id}')" class="p-2.5 bg-slate-100 dark:bg-slate-950 hover:bg-rose-500/10 text-slate-400 hover:text-rose-500 rounded-xl border border-slate-200 dark:border-slate-800 transition-all duration-200">
-                        <i data-lucide="x" class="w-4 h-4"></i>
-                    </button>
-                </div>
+        <div class="flex items-center justify-between md:justify-end w-full md:w-auto gap-4 sm:gap-6 border-t md:border-t-0 pt-3 md:pt-0 border-slate-100 dark:border-slate-800">
+            <div class="text-left md:text-right space-y-0.5">
+                <p id="metrics-size-${item.id}" class="text-xs font-bold text-slate-400">Processing...</p>
+                <p id="metrics-saved-${item.id}" class="text-[10px] text-emerald-500 font-extrabold tracking-wide uppercase"></p>
+            </div>
+            
+            <div class="flex items-center space-x-2">
+                <button id="btn-dl-${item.id}" disabled class="opacity-40 p-2.5 bg-slate-100 dark:bg-slate-950 hover:bg-emerald-500/10 text-slate-400 hover:text-emerald-500 rounded-xl border border-slate-200 dark:border-slate-800 transition-all duration-200">
+                    <i data-lucide="download" class="w-4 h-4"></i>
+                </button>
+                <button id="btn-rm-${item.id}" class="p-2.5 bg-slate-100 dark:bg-slate-950 hover:bg-rose-500/10 text-slate-400 hover:text-rose-500 rounded-xl border border-slate-200 dark:border-slate-800 transition-all duration-200">
+                    <i data-lucide="x" class="w-4 h-4"></i>
+                </button>
             </div>
         </div>
     `;
-    queueWrapper.insertAdjacentHTML('beforeend', itemHtml);
+    
+    queueWrapper.appendChild(rowWrapper);
     lucide.createIcons();
+
+    // Attach explicit element listeners dynamically to bypass HTML inline execution issues
+    document.getElementById(`btn-dl-${item.id}`).addEventListener('click', () => downloadSingleItem(item.id));
+    document.getElementById(`btn-rm-${item.id}`).addEventListener('click', () => removeSingleQueueItem(item.id));
 }
 
 function syncQueueHeaderState() {
@@ -172,13 +215,13 @@ function syncQueueHeaderState() {
 
     if (globalFilesQueue.length > 0) {
         header.classList.remove('hidden');
-        counterText.textContent = `${globalFilesQueue.length} operational asset(s) in current workspace context`;
+        counterText.textContent = `${globalFilesQueue.length} operational asset(s) loaded into current context`;
     } else {
         header.classList.add('hidden');
     }
 }
 
-// ------------------ IMAGE PROCESSING HANDLERS (CANVAS PIPELINE) ------------------
+// ------------------ IMAGE COMPRESSION CORE PIPELINE (CANVAS TRANSFORMS) ------------------
 function processSingleQueueItem(item) {
     const reader = new FileReader();
     reader.onload = function(event) {
@@ -188,30 +231,23 @@ function processSingleQueueItem(item) {
             const ctx = canvas.getContext('2d');
             if (!canvas || !ctx) return;
 
-            // Enforce explicit identical scale resolution to retain absolute source clarity dimensions
+            // Retains absolute 100% resolution dimension mapping to protect target visual clarity boundaries
             canvas.width = htmlImage.width;
             canvas.height = htmlImage.height;
             ctx.drawImage(htmlImage, 0, 0, canvas.width, canvas.height);
 
-            // Compute structural type extensions parameters
             const targetMime = globalTargetFormat === 'original' ? item.originalMime : globalTargetFormat;
             const compressionQuality = COMPRESSION_MAP[activeCompressionPreset];
 
-            // Trigger canvas buffer translation mapping extraction
-            // Formats like image/png do not natively accept lossy quality factors in browser specifications,
-            // but our pipeline scales layout bounds cleanly to maximize optimization rules.
             const compressedUrl = canvas.toDataURL(targetMime, compressionQuality);
             
-            // Extract approximate data size from base64 descriptor string
             const base64HeadLength = `data:${targetMime};base64,`.length;
             const computedBytes = Math.round((compressedUrl.length - base64HeadLength) * 3 / 4);
 
-            // Mutate item records configurations
             item.processedBlobUrl = compressedUrl;
             item.processedBytesSize = computedBytes;
             item.processedExtension = targetMime.split('/')[1];
 
-            // Update UI components layout attributes
             const previewEl = document.getElementById(`img-preview-${item.id}`);
             const loaderEl = document.getElementById(`loader-${item.id}`);
             const sizeMetricEl = document.getElementById(`metrics-size-${item.id}`);
@@ -246,10 +282,9 @@ function processSingleQueueItem(item) {
 
 function reprocessCurrentQueue() {
     if (globalFilesQueue.length === 0) return;
-    showToast('Applying dynamic transformation rules...', 'info');
+    showToast('Applying configuration metrics recursively...', 'info');
     
     globalFilesQueue.forEach(item => {
-        // Reset element states visually
         const loaderEl = document.getElementById(`loader-${item.id}`);
         const savedMetricEl = document.getElementById(`metrics-saved-${item.id}`);
         const sizeMetricEl = document.getElementById(`metrics-size-${item.id}`);
@@ -265,44 +300,43 @@ function reprocessCurrentQueue() {
     });
 }
 
-// ------------------ DATA STRUCTURAL ACTION FLOWS ------------------
-window.downloadSingleItem = function(id) {
+// ------------------ HARDWARE ATOM DOWNLOAD FLOW TRIGGERS ------------------
+function downloadSingleItem(id) {
     const item = globalFilesQueue.find(i => i.id === id);
     if (!item || !item.processedBlobUrl) return;
 
     const linkHook = document.createElement('a');
     const rawCleanName = item.originalName.substring(0, item.originalName.lastIndexOf('.')) || item.originalName;
-    linkHook.download = `webpress_${rawCleanName}.${item.processedExtension}`;
+    linkHook.download = `optimized_${rawCleanName}.${item.processedExtension}`;
     linkHook.href = item.processedBlobUrl;
     document.body.appendChild(linkHook);
     linkHook.click();
     document.body.removeChild(linkHook);
-    showToast('Asset downscaled natively and saved!');
-};
+}
 
-window.removeSingleQueueItem = function(id) {
+function removeSingleQueueItem(id) {
     globalFilesQueue = globalFilesQueue.filter(i => i.id !== id);
     const element = document.getElementById(id);
     if (element) element.remove();
     syncQueueHeaderState();
-    showToast('Asset extracted from active queue context.', 'info');
-};
+    showToast('Asset removed from queue context.', 'info');
+}
 
-window.clearAllQueue = function() {
+function clearAllQueue() {
     globalFilesQueue = [];
     const queueWrapper = document.getElementById('image-processing-queue');
     if (queueWrapper) queueWrapper.innerHTML = '';
     syncQueueHeaderState();
-    showToast('Workspace context successfully purged.', 'info');
-};
+    showToast('Active queue purged completely.', 'info');
+}
 
-window.downloadAllProcessed = function() {
+function downloadAllProcessed() {
     if (globalFilesQueue.length === 0) return;
     
-    showToast('Triggering batch conversion streams...', 'success');
+    showToast('Triggering clean file stream downloads...', 'success');
     globalFilesQueue.forEach((item, index) => {
         setTimeout(() => {
-            if (item.processedBlobUrl) window.downloadSingleItem(item.id);
-        }, index * 250); // Interleave download request triggers to safely bypass native popups browser restrictions
+            if (item.processedBlobUrl) downloadSingleItem(item.id);
+        }, index * 300); // Interleave batch calls securely to avoid multi-popup browser execution blocks
     });
-};
+}

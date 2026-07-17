@@ -61,3 +61,8 @@
     box-shadow: 0 4px 10px rgba(0, 0, 0, 0.4);
     pointer-events: none;
 }
+
+/* Clear video optimization spacing boundaries */
+video {
+    background-color: #020617;
+}

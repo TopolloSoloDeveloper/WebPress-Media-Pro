@@ -1,4 +1,8 @@
-// Global Application Memory State Scopes
+// ==========================================================================
+// 1. GLOBAL MEMORY STATE SCOPES & CONFIGURATION DICTIONARIES
+// ==========================================================================
+
+// Global Application Memory State Scopes (Image Suite)
 let activeCompressionPreset = 'medium'; 
 let globalTargetFormat = 'original';     
 let globalFilesQueue = [];
@@ -10,6 +14,23 @@ const COMPRESSION_MAP = {
     'high': 0.55
 };
 
+// Video Extension Global Memory States (Video Suite)
+let activeVideoCompressionPreset = 'medium';
+let globalVideoTargetFormat = 'original';
+let currentLoadedVideoBlob = null;
+let currentLoadedVideoMetadata = null;
+
+// Mock compression factor scales for offline calculation metrics
+const VIDEO_BITRATE_FACTOR_MAP = {
+    'low': 0.45,    // Eco Size (Shrinks data footprint heavily)
+    'medium': 0.65, // Balanced profile
+    'high': 0.85    // Preserves maximum visual data boundaries
+};
+
+// ==========================================================================
+// 2. DOCUMENT LIFECYCLE MOUNT & INTERACTION LISTENERS BINDINGS
+// ==========================================================================
+
 // Document Mount Execution Flow
 document.addEventListener('DOMContentLoaded', () => {
     lucide.createIcons();
@@ -18,7 +39,84 @@ document.addEventListener('DOMContentLoaded', () => {
     initGlobalActionListeners();
 });
 
-// ------------------ GLOBAL SYSTEM NOTIFICATION TOASTS ------------------
+// DOM Event Listeners Bindings Framework
+function initGlobalActionListeners() {
+    // 1. Compression Preset Filter Switch Event Triggers
+    document.querySelectorAll('.comp-btn').forEach(btn => {
+        btn.addEventListener('click', (e) => {
+            const selectedLevel = e.currentTarget.getAttribute('data-level');
+            setCompressionPreset(selectedLevel);
+        });
+    });
+
+    // 2. Format Conversion Filter Switch Event Triggers
+    document.querySelectorAll('.fmt-btn').forEach(btn => {
+        btn.addEventListener('click', (e) => {
+            const selectedFormat = e.currentTarget.getAttribute('data-format');
+            setTargetFormatPreset(selectedFormat);
+        });
+    });
+
+    // 3. Global Reset/Clear Actions Trigger Listener
+    const clearAllBtn = document.getElementById('btn-clear-all');
+    if (clearAllBtn) {
+        clearAllBtn.addEventListener('click', () => {
+            clearAllQueue();
+        });
+    }
+
+    // 4. Global Download Actions Trigger Listener
+    const downloadAllBtn = document.getElementById('btn-download-all');
+    if (downloadAllBtn) {
+        downloadAllBtn.addEventListener('click', () => {
+            downloadAllProcessed();
+        });
+    }
+}
+
+// Append Video suite tab initialization handlers to global listeners loop
+const originalInitGlobalActionListeners = initGlobalActionListeners;
+initGlobalActionListeners = function() {
+    originalInitGlobalActionListeners();
+    initWorkspaceTabBindings();
+    initVideoSuiteActionListeners();
+};
+
+// Workspace Navigation Tab Switching Pipeline
+function initWorkspaceTabBindings() {
+    const tabImg = document.getElementById('tab-trigger-image');
+    const tabVid = document.getElementById('tab-trigger-video');
+    const suiteImg = document.getElementById('workspace-image-suite');
+    const suiteVid = document.getElementById('workspace-video-suite');
+
+    if (!tabImg || !tabVid || !suiteImg || !suiteVid) return;
+
+    tabImg.addEventListener('click', () => {
+        // Active visual state modifiers for Image tab trigger
+        tabImg.className = "w-1/2 text-center pb-3 font-semibold text-sm border-b-2 border-emerald-500 text-emerald-500 transition-all duration-200 cursor-pointer";
+        tabVid.className = "w-1/2 text-center pb-3 font-semibold text-sm border-b-2 border-transparent text-slate-400 hover:text-slate-200 transition-all duration-200 cursor-pointer";
+        
+        suiteImg.classList.remove('hidden');
+        suiteVid.classList.add('hidden');
+        showToast('Switched to Image Processing Suite', 'info');
+    });
+
+    tabVid.addEventListener('click', () => {
+        // Active visual state modifiers for Video tab trigger
+        tabVid.className = "w-1/2 text-center pb-3 font-semibold text-sm border-b-2 border-emerald-500 text-emerald-500 transition-all duration-200 cursor-pointer";
+        tabImg.className = "w-1/2 text-center pb-3 font-semibold text-sm border-b-2 border-transparent text-slate-400 hover:text-slate-200 transition-all duration-200 cursor-pointer";
+        
+        suiteVid.classList.remove('hidden');
+        suiteImg.classList.add('hidden');
+        showToast('Switched to Video Transcoding Suite', 'info');
+    });
+}
+
+// ==========================================================================
+// 3. UTILITY MODULES (THEME ENGINE, TOAST ALERTS & METRIC CONVERTERS)
+// ==========================================================================
+
+// Global System Notification Toasts HUD Subsystem
 let toastTimeout;
 function showToast(message, type = 'success') {
     const toast = document.getElementById('toast');
@@ -61,7 +159,7 @@ function formatBytes(bytes, decimals = 2) {
     return parseFloat((bytes / Math.pow(k, i)).toFixed(dm)) + ' ' + sizes[i];
 }
 
-// ------------------ LIGHT / DARK THEME ENGINE ------------------
+// Light / Dark Theme Management Engine
 function initThemeEngine() {
     const themeToggle = document.getElementById('theme-toggle');
     const themeIcon = document.getElementById('theme-icon');
@@ -92,42 +190,11 @@ function initThemeEngine() {
         lucide.createIcons();
     });
 }
-// ------------------ DOM EVENT LISTENERS BINDINGS ------------------
-function initGlobalActionListeners() {
-    // 1. Compression Preset Filter Switch Event Triggers
-    document.querySelectorAll('.comp-btn').forEach(btn => {
-        btn.addEventListener('click', (e) => {
-            const selectedLevel = e.currentTarget.getAttribute('data-level');
-            setCompressionPreset(selectedLevel);
-        });
-    });
+// ==========================================================================
+// 4. IMAGE SUITE OPERATIONAL PRESETS & WORKSPACE PIPELINE
+// ==========================================================================
 
-    // 2. Format Conversion Filter Switch Event Triggers
-    document.querySelectorAll('.fmt-btn').forEach(btn => {
-        btn.addEventListener('click', (e) => {
-            const selectedFormat = e.currentTarget.getAttribute('data-format');
-            setTargetFormatPreset(selectedFormat);
-        });
-    });
-
-    // 3. Global Reset/Clear Actions Trigger Listener
-    const clearAllBtn = document.getElementById('btn-clear-all');
-    if (clearAllBtn) {
-        clearAllBtn.addEventListener('click', () => {
-            clearAllQueue();
-        });
-    }
-
-    // 4. Global Download Actions Trigger Listener
-    const downloadAllBtn = document.getElementById('btn-download-all');
-    if (downloadAllBtn) {
-        downloadAllBtn.addEventListener('click', () => {
-            downloadAllProcessed();
-        });
-    }
-}
-
-// ------------------ PRESET OPERATIONAL MODIFIERS ------------------
+// Image Preset Operational Modifiers
 function setCompressionPreset(level) {
     activeCompressionPreset = level;
     document.querySelectorAll('.comp-btn').forEach(btn => {
@@ -155,7 +222,7 @@ function setTargetFormatPreset(format) {
     reprocessCurrentQueue();
 }
 
-// ------------------ SECURE LOCAL DISK FILE INPUT PIPELINE ------------------
+// Secure Local Disk Image File Input Pipeline
 function initUploadPipeline() {
     const dropZone = document.getElementById('drop-zone');
     const fileInput = document.getElementById('file-input');
@@ -206,7 +273,8 @@ function handleIncomingFilesList(filesList) {
     }
     syncQueueHeaderState();
 }
-// ------------------ WORKSPACE QUEUE ELEMENT GENERATION ------------------
+
+// Workspace Queue Element Generation Layout Nodes
 function renderQueueItemSkeleton(item) {
     const queueWrapper = document.getElementById('image-processing-queue');
     if (!queueWrapper) return;
@@ -266,7 +334,8 @@ function syncQueueHeaderState() {
         header.classList.add('hidden');
     }
 }
-// ------------------ IMAGE COMPRESSION CORE PIPELINE (CANVAS TRANSFORMS) ------------------
+
+// Image Compression Core Pipeline (HTML5 Canvas Matrix Transforms)
 function processSingleQueueItem(item) {
     const reader = new FileReader();
     reader.onload = function(event) {
@@ -345,7 +414,7 @@ function reprocessCurrentQueue() {
     });
 }
 
-// ------------------ HARDWARE ATOM DOWNLOAD FLOW TRIGGERS ------------------
+// Hardware Asset Download & Image Queue Purge Flow Triggers
 function downloadSingleItem(id) {
     const item = globalFilesQueue.find(i => i.id === id);
     if (!item || !item.processedBlobUrl) return;
@@ -385,57 +454,12 @@ function downloadAllProcessed() {
         }, index * 300); // Interleave batch calls securely to avoid multi-popup browser execution blocks
     });
 }
-// ------------------ VIDEO EXTENSION GLOBAL STATES ------------------
-let activeVideoCompressionPreset = 'medium';
-let globalVideoTargetFormat = 'original';
-let currentLoadedVideoBlob = null;
-let currentLoadedVideoMetadata = null;
 
-// Mock compression factor scales for offline calculation metrics
-const VIDEO_BITRATE_FACTOR_MAP = {
-    'low': 0.45,    // Eco Size (Shrinks data footprint heavily)
-    'medium': 0.65, // Balanced profile
-    'high': 0.85    // Preserves maximum visual data boundaries
-};
+// ==========================================================================
+// 5. VIDEO SUITE PARAMETERS EVENT HANDLERS & SIMULATION ENGINE
+// ==========================================================================
 
-// Append Video suite tab initialization handlers to global listeners loop
-const originalInitGlobalActionListeners = initGlobalActionListeners;
-initGlobalActionListeners = function() {
-    originalInitGlobalActionListeners();
-    initWorkspaceTabBindings();
-    initVideoSuiteActionListeners();
-};
-
-// ------------------ WORKSPACE NAVIGATION TOGGLE PIPELINE ------------------
-function initWorkspaceTabBindings() {
-    const tabImg = document.getElementById('tab-trigger-image');
-    const tabVid = document.getElementById('tab-trigger-video');
-    const suiteImg = document.getElementById('workspace-image-suite');
-    const suiteVid = document.getElementById('workspace-video-suite');
-
-    if (!tabImg || !tabVid || !suiteImg || !suiteVid) return;
-
-    tabImg.addEventListener('click', () => {
-        // Active visual state modifiers for Image tab trigger
-        tabImg.className = "w-1/2 text-center pb-3 font-semibold text-sm border-b-2 border-emerald-500 text-emerald-500 transition-all duration-200 cursor-pointer";
-        tabVid.className = "w-1/2 text-center pb-3 font-semibold text-sm border-b-2 border-transparent text-slate-400 hover:text-slate-200 transition-all duration-200 cursor-pointer";
-        
-        suiteImg.classList.remove('hidden');
-        suiteVid.classList.add('hidden');
-        showToast('Switched to Image Processing Suite', 'info');
-    });
-
-    tabVid.addEventListener('click', () => {
-        // Active visual state modifiers for Video tab trigger
-        tabVid.className = "w-1/2 text-center pb-3 font-semibold text-sm border-b-2 border-emerald-500 text-emerald-500 transition-all duration-200 cursor-pointer";
-        tabImg.className = "w-1/2 text-center pb-3 font-semibold text-sm border-b-2 border-transparent text-slate-400 hover:text-slate-200 transition-all duration-200 cursor-pointer";
-        
-        suiteVid.classList.remove('hidden');
-        suiteImg.classList.add('hidden');
-        showToast('Switched to Video Transcoding Suite', 'info');
-    });
-}
-// ------------------ VIDEO PARAMETER EVENT BINDINGS ------------------
+// Video Parameter Switch Action Listeners
 function initVideoSuiteActionListeners() {
     // 1. Bitrate Profile Control Switch Listeners
     document.querySelectorAll('.vid-comp-btn').forEach(btn => {
@@ -470,7 +494,7 @@ function initVideoSuiteActionListeners() {
     }
 }
 
-// ------------------ CORE VIDEO CONFIGURATION MUTATORS ------------------
+// Core Video Configuration Profile Mutators
 function setVideoCompressionPreset(level) {
     activeVideoCompressionPreset = level;
     document.querySelectorAll('.vid-comp-btn').forEach(btn => {
@@ -497,7 +521,8 @@ function setVideoTargetFormatPreset(format) {
     }
     updateVideoAnalyticalProjections();
 }
-// ------------------ LOCAL VIDEO FILE INGESTION PIPELINE ------------------
+
+// Intercept & Extend Upload Pipeline for Video Input Support
 const originalInitUploadPipeline = initUploadPipeline;
 initUploadPipeline = function() {
     originalInitUploadPipeline();
@@ -528,7 +553,7 @@ initUploadPipeline = function() {
     });
 };
 
-// ------------------ SANDBOX MEMORY TRACK ALLOCATORS ------------------
+// Sandbox Local Memory Track Allocation & Metadata Extraction
 function processIncomingVideoFile(file) {
     if (!file.type.startsWith('video/')) {
         showToast('Invalid media type. Please provide a valid video asset layout.', 'error');
@@ -577,7 +602,7 @@ function processIncomingVideoFile(file) {
     showToast('Video track linked inside system context.', 'success');
 }
 
-// ------------------ INTERFACE PREVIEW METRIC UPDATER ------------------
+// Interface Video Preview Dashboard Matrix Projector
 function updateVideoAnalyticalProjections() {
     if (!currentLoadedVideoMetadata) return;
 
@@ -596,7 +621,8 @@ function updateVideoAnalyticalProjections() {
     const targetShrinkRatio = Math.round((1 - scaleFactor) * 100);
     if (savingsEl) savingsEl.textContent = `-${targetShrinkRatio}% Size Shrunk`;
 }
-// ------------------ ASYNCHRONOUS BLOCK TRANSCODER LOOP ------------------
+
+// Asynchronous Chunk-Level Stream Transcoder Simulator Engine
 function executeVideoCompressionPipeline() {
     if (!currentLoadedVideoBlob || !currentLoadedVideoMetadata) {
         showToast('No active video stream layer loaded.', 'error');
@@ -661,7 +687,8 @@ function executeVideoCompressionPipeline() {
         }
     }, 180);
 }
-// ------------------ HARDWARE FILE STREAM DOWNLOAD MOUNTS ------------------
+
+// Hardware-Level Binary File Stream Download Mounts
 function triggerDirectVideoDownload(sourceBlob, targetedFilename) {
     const virtualLinkElement = document.createElement('a');
     virtualLinkElement.download = targetedFilename;
@@ -680,7 +707,7 @@ function triggerDirectVideoDownload(sourceBlob, targetedFilename) {
     }, 150);
 }
 
-// ------------------ SYSTEM CLEAN RESET AND WORKSPACE PURGES ------------------
+// System Clean Reset & Local Memory Space Purges
 function clearVideoSessionContext() {
     const playerElement = document.getElementById('video-preview-player');
     const inputElement = document.getElementById('video-file-input');
@@ -706,4 +733,4 @@ function clearVideoSessionContext() {
     if (workspace) workspace.classList.add('hidden');
     
     showToast('Video memory workspace contextual parameters cleared.', 'info');
-}
+        }

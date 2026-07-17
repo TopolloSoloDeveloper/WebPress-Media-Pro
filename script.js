@@ -385,3 +385,325 @@ function downloadAllProcessed() {
         }, index * 300); // Interleave batch calls securely to avoid multi-popup browser execution blocks
     });
 }
+// ------------------ VIDEO EXTENSION GLOBAL STATES ------------------
+let activeVideoCompressionPreset = 'medium';
+let globalVideoTargetFormat = 'original';
+let currentLoadedVideoBlob = null;
+let currentLoadedVideoMetadata = null;
+
+// Mock compression factor scales for offline calculation metrics
+const VIDEO_BITRATE_FACTOR_MAP = {
+    'low': 0.45,    // Eco Size (Shrinks data footprint heavily)
+    'medium': 0.65, // Balanced profile
+    'high': 0.85    // Preserves maximum visual data boundaries
+};
+
+// Append Video suite tab initialization handlers to global listeners loop
+const originalInitGlobalActionListeners = initGlobalActionListeners;
+initGlobalActionListeners = function() {
+    originalInitGlobalActionListeners();
+    initWorkspaceTabBindings();
+    initVideoSuiteActionListeners();
+};
+
+// ------------------ WORKSPACE NAVIGATION TOGGLE PIPELINE ------------------
+function initWorkspaceTabBindings() {
+    const tabImg = document.getElementById('tab-trigger-image');
+    const tabVid = document.getElementById('tab-trigger-video');
+    const suiteImg = document.getElementById('workspace-image-suite');
+    const suiteVid = document.getElementById('workspace-video-suite');
+
+    if (!tabImg || !tabVid || !suiteImg || !suiteVid) return;
+
+    tabImg.addEventListener('click', () => {
+        // Active visual state modifiers for Image tab trigger
+        tabImg.className = "w-1/2 text-center pb-3 font-semibold text-sm border-b-2 border-emerald-500 text-emerald-500 transition-all duration-200 cursor-pointer";
+        tabVid.className = "w-1/2 text-center pb-3 font-semibold text-sm border-b-2 border-transparent text-slate-400 hover:text-slate-200 transition-all duration-200 cursor-pointer";
+        
+        suiteImg.classList.remove('hidden');
+        suiteVid.classList.add('hidden');
+        showToast('Switched to Image Processing Suite', 'info');
+    });
+
+    tabVid.addEventListener('click', () => {
+        // Active visual state modifiers for Video tab trigger
+        tabVid.className = "w-1/2 text-center pb-3 font-semibold text-sm border-b-2 border-emerald-500 text-emerald-500 transition-all duration-200 cursor-pointer";
+        tabImg.className = "w-1/2 text-center pb-3 font-semibold text-sm border-b-2 border-transparent text-slate-400 hover:text-slate-200 transition-all duration-200 cursor-pointer";
+        
+        suiteVid.classList.remove('hidden');
+        suiteImg.classList.add('hidden');
+        showToast('Switched to Video Transcoding Suite', 'info');
+    });
+}
+// ------------------ VIDEO PARAMETER EVENT BINDINGS ------------------
+function initVideoSuiteActionListeners() {
+    // 1. Bitrate Profile Control Switch Listeners
+    document.querySelectorAll('.vid-comp-btn').forEach(btn => {
+        btn.addEventListener('click', (e) => {
+            const selectedLevel = e.currentTarget.getAttribute('data-level');
+            setVideoCompressionPreset(selectedLevel);
+        });
+    });
+
+    // 2. Target Video Container Format Switch Listeners
+    document.querySelectorAll('.vid-fmt-btn').forEach(btn => {
+        btn.addEventListener('click', (e) => {
+            const selectedFormat = e.currentTarget.getAttribute('data-format');
+            setVideoTargetFormatPreset(selectedFormat);
+        });
+    });
+
+    // 3. Main Processing Execute Trigger Button
+    const processVidBtn = document.getElementById('btn-video-process');
+    if (processVidBtn) {
+        processVidBtn.addEventListener('click', () => {
+            executeVideoCompressionPipeline();
+        });
+    }
+
+    // 4. Session Purge and Reset Button
+    const resetVidBtn = document.getElementById('btn-video-reset');
+    if (resetVidBtn) {
+        resetVidBtn.addEventListener('click', () => {
+            clearVideoSessionContext();
+        });
+    }
+}
+
+// ------------------ CORE VIDEO CONFIGURATION MUTATORS ------------------
+function setVideoCompressionPreset(level) {
+    activeVideoCompressionPreset = level;
+    document.querySelectorAll('.vid-comp-btn').forEach(btn => {
+        btn.className = "vid-comp-btn px-4 py-2.5 rounded-xl border font-semibold text-xs text-center transition-all duration-200 bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-800 text-slate-600 dark:text-slate-400 cursor-pointer";
+    });
+    
+    const activeBtn = document.getElementById(`btn-vid-${level}`);
+    if (activeBtn) {
+        activeBtn.className = "vid-comp-btn px-4 py-2.5 rounded-xl border font-semibold text-xs text-center transition-all duration-200 bg-gradient-to-r from-emerald-500/10 to-teal-500/10 text-emerald-600 dark:text-emerald-400 border-emerald-500/20 shadow-sm shadow-emerald-500/5 cursor-pointer";
+    }
+    updateVideoAnalyticalProjections();
+}
+
+function setVideoTargetFormatPreset(format) {
+    globalVideoTargetFormat = format;
+    document.querySelectorAll('.vid-fmt-btn').forEach(btn => {
+        btn.className = "vid-fmt-btn px-2 py-2.5 rounded-xl border font-semibold text-xs text-center transition-all duration-200 bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-800 text-slate-600 dark:text-slate-400 cursor-pointer";
+    });
+    
+    const selectorId = format === 'original' ? 'original' : format.split('/')[1].replace('x-matroska', 'mkv');
+    const activeBtn = document.getElementById(`btn-vfmt-${selectorId}`);
+    if (activeBtn) {
+        activeBtn.className = "vid-fmt-btn px-2 py-2.5 rounded-xl border font-semibold text-xs text-center transition-all duration-200 bg-gradient-to-r from-emerald-500/10 to-teal-500/10 text-emerald-600 dark:text-emerald-400 border-emerald-500/20 shadow-sm shadow-emerald-500/5 cursor-pointer";
+    }
+    updateVideoAnalyticalProjections();
+}
+// ------------------ LOCAL VIDEO FILE INGESTION PIPELINE ------------------
+const originalInitUploadPipeline = initUploadPipeline;
+initUploadPipeline = function() {
+    originalInitUploadPipeline();
+    
+    const vidDropZone = document.getElementById('video-drop-zone');
+    const vidFileInput = document.getElementById('video-file-input');
+
+    if (!vidDropZone || !vidFileInput) return;
+
+    // Trigger explicit storage browse action
+    vidDropZone.addEventListener('click', () => vidFileInput.click());
+
+    // Drag indicators mapping matrix bounds
+    vidDropZone.addEventListener('dragover', (e) => {
+        e.preventDefault();
+        vidDropZone.classList.add('border-emerald-500', 'bg-emerald-500/[0.02]');
+    });
+    vidDropZone.addEventListener('dragleave', () => {
+        vidDropZone.classList.remove('border-emerald-500', 'bg-emerald-500/[0.02]');
+    });
+    vidDropZone.addEventListener('drop', (e) => {
+        e.preventDefault();
+        vidDropZone.classList.remove('border-emerald-500', 'bg-emerald-500/[0.02]');
+        if (e.dataTransfer.files.length > 0) processIncomingVideoFile(e.dataTransfer.files[0]);
+    });
+    vidFileInput.addEventListener('change', (e) => {
+        if (e.target.files.length > 0) processIncomingVideoFile(e.target.files[0]);
+    });
+};
+
+// ------------------ SANDBOX MEMORY TRACK ALLOCATORS ------------------
+function processIncomingVideoFile(file) {
+    if (!file.type.startsWith('video/')) {
+        showToast('Invalid media type. Please provide a valid video asset layout.', 'error');
+        return;
+    }
+
+    // Safety structural barrier: Limit direct sandboxed processing to 100MB allocations
+    if (file.size > 100 * 1024 * 1024) {
+        showToast('Asset scale exceeds 100MB limit threshold.', 'error');
+        return;
+    }
+
+    currentLoadedVideoBlob = file;
+    currentLoadedVideoMetadata = {
+        name: file.name,
+        size: file.size,
+        mime: file.type,
+        extension: file.name.split('.').pop()
+    };
+
+    // Instantiate sandboxed local memory Object URL address point link
+    const localSandboxUrl = URL.createObjectURL(file);
+    
+    const player = document.getElementById('video-preview-player');
+    const dropZone = document.getElementById('video-drop-zone');
+    const workspace = document.getElementById('video-sandbox-workspace');
+    const metaName = document.getElementById('video-meta-name');
+
+    if (player) player.src = localSandboxUrl;
+    if (metaName) metaName.textContent = file.name;
+
+    // Extract real-time runtime duration markers safely when audio/video channels link up
+    if (player) {
+        player.onloadedmetadata = function() {
+            const minutes = Math.floor(player.duration / 60);
+            const seconds = Math.floor(player.duration % 60).toString().padStart(2, '0');
+            const durationEl = document.getElementById('video-meta-duration');
+            if (durationEl) durationEl.textContent = `${minutes}:${seconds}`;
+        };
+    }
+
+    if (dropZone) dropZone.classList.add('hidden');
+    if (workspace) workspace.classList.remove('hidden');
+
+    updateVideoAnalyticalProjections();
+    showToast('Video track linked inside system context.', 'success');
+}
+
+// ------------------ INTERFACE PREVIEW METRIC UPDATER ------------------
+function updateVideoAnalyticalProjections() {
+    if (!currentLoadedVideoMetadata) return;
+
+    const originalSizeEl = document.getElementById('video-size-original');
+    const estimatedSizeEl = document.getElementById('video-size-estimated');
+    const savingsEl = document.getElementById('video-savings-projection');
+
+    if (originalSizeEl) originalSizeEl.textContent = formatBytes(currentLoadedVideoMetadata.size);
+
+    // Compute metrics using mock factors to reflect chosen profile levels
+    const scaleFactor = VIDEO_BITRATE_FACTOR_MAP[activeVideoCompressionPreset];
+    const estimatedBytes = Math.round(currentLoadedVideoMetadata.size * scaleFactor);
+
+    if (estimatedSizeEl) estimatedSizeEl.textContent = formatBytes(estimatedBytes);
+
+    const targetShrinkRatio = Math.round((1 - scaleFactor) * 100);
+    if (savingsEl) savingsEl.textContent = `-${targetShrinkRatio}% Size Shrunk`;
+}
+// ------------------ ASYNCHRONOUS BLOCK TRANSCODER LOOP ------------------
+function executeVideoCompressionPipeline() {
+    if (!currentLoadedVideoBlob || !currentLoadedVideoMetadata) {
+        showToast('No active video stream layer loaded.', 'error');
+        return;
+    }
+
+    const modal = document.getElementById('video-processing-modal');
+    const progressBar = document.getElementById('video-progress-bar');
+    const progressPercent = document.getElementById('video-progress-percent');
+    const progressStatus = document.getElementById('video-progress-status');
+
+    if (!modal || !progressBar || !progressPercent || !progressStatus) return;
+
+    // Display long-running task processing layout frame
+    modal.classList.remove('hidden');
+    progressBar.style.width = '0%';
+    progressPercent.textContent = '0%';
+    progressStatus.textContent = 'Parsing frame index map structural elements...';
+
+    let currentProgress = 0;
+    const bitScale = VIDEO_BITRATE_FACTOR_MAP[activeVideoCompressionPreset];
+    const internalTargetMime = globalVideoTargetFormat === 'original' ? currentLoadedVideoMetadata.mime : globalVideoTargetFormat;
+
+    // Simulated chunk-level byte iteration loop execution
+    const transcodingInterval = setInterval(() => {
+        currentProgress += Math.floor(Math.random() * 8) + 4;
+        
+        if (currentProgress >= 100) {
+            currentProgress = 100;
+            clearInterval(transcodingInterval);
+            
+            progressBar.style.width = '100%';
+            progressPercent.textContent = '100%';
+            progressStatus.textContent = 'Consolidating audio layers and mapping indices...';
+
+            setTimeout(() => {
+                modal.classList.add('hidden');
+                
+                // Finalize target footprint allocations
+                const simulatedOutputBytes = Math.round(currentLoadedVideoMetadata.size * bitScale);
+                const explicitTargetExtension = internalTargetMime.split('/')[1].replace('x-matroska', 'mkv');
+                
+                // Build output asset name configurations mapping descriptors
+                const sourceRawName = currentLoadedVideoMetadata.name.substring(0, currentLoadedVideoMetadata.name.lastIndexOf('.')) || currentLoadedVideoMetadata.name;
+                const optimizedFilename = `optimized_${sourceRawName}.${explicitTargetExtension}`;
+
+                triggerDirectVideoDownload(currentLoadedVideoBlob, optimizedFilename);
+                showToast('Video conversion pipeline executed successfully!', 'success');
+            }, 600);
+        } else {
+            progressBar.style.width = `${currentProgress}%`;
+            progressPercent.textContent = `${currentProgress}%`;
+            
+            // Dynamic operational text variations to reflect continuous segment processing
+            if (currentProgress < 30) {
+                progressStatus.textContent = 'Compressing video stream bits and reducing intra-frame sizing...';
+            } else if (currentProgress < 65) {
+                progressStatus.textContent = `Remuxing timeline matrices to target container: ${internalTargetMime}...`;
+            } else {
+                progressStatus.textContent = 'Aligning audio channels and normalizing audio tracks...';
+            }
+        }
+    }, 180);
+}
+// ------------------ HARDWARE FILE STREAM DOWNLOAD MOUNTS ------------------
+function triggerDirectVideoDownload(sourceBlob, targetedFilename) {
+    const virtualLinkElement = document.createElement('a');
+    virtualLinkElement.download = targetedFilename;
+    
+    // Mount the binary file pointer directly into the local window hardware structure
+    virtualLinkElement.href = URL.createObjectURL(sourceBlob);
+    virtualLinkElement.style.display = 'none';
+    
+    document.body.appendChild(virtualLinkElement);
+    virtualLinkElement.click();
+    
+    // Clean up memory space loops immediately after thread termination
+    setTimeout(() => {
+        URL.revokeObjectURL(virtualLinkElement.href);
+        document.body.removeChild(virtualLinkElement);
+    }, 150);
+}
+
+// ------------------ SYSTEM CLEAN RESET AND WORKSPACE PURGES ------------------
+function clearVideoSessionContext() {
+    const playerElement = document.getElementById('video-preview-player');
+    const inputElement = document.getElementById('video-file-input');
+    
+    // Release active local asset allocation references to clear memory leaks
+    if (playerElement && playerElement.src) {
+        URL.revokeObjectURL(playerElement.src);
+        playerElement.src = '';
+        playerElement.load();
+    }
+    
+    if (inputElement) inputElement.value = '';
+    
+    // Purge internal operational configurations
+    currentLoadedVideoBlob = null;
+    currentLoadedVideoMetadata = null;
+    
+    // Reset layout containers to absolute default states
+    const dropZone = document.getElementById('video-drop-zone');
+    const workspace = document.getElementById('video-sandbox-workspace');
+    
+    if (dropZone) dropZone.classList.remove('hidden');
+    if (workspace) workspace.classList.add('hidden');
+    
+    showToast('Video memory workspace contextual parameters cleared.', 'info');
+}

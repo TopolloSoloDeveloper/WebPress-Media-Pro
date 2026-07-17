@@ -1,3 +1,7 @@
+/* ==========================================================================
+   BASE BASELINE CONFIGURATION & TYPOGRAPHY SETUPS
+   ========================================================================== */
+
 /* Typography Configuration Framework overrides */
 body {
     font-family: 'Inter', sans-serif;
@@ -24,6 +28,11 @@ body {
 .dark ::-webkit-scrollbar-thumb:hover {
     background: #475569;
 }
+
+/* ==========================================================================
+   IMAGE SUITE INTERACTIVE ANIMATIONS & CONTROLS
+   ========================================================================== */
+
 /* Custom CSS Presentation Animations rules */
 .animate-fade-in {
     animation: fadeIn 0.3s ease-out forwards;
@@ -46,6 +55,7 @@ body {
                 border-color 0.2s cubic-bezier(0.4, 0, 0.2, 1), 
                 box-shadow 0.2s cubic-bezier(0.4, 0, 0.2, 1);
 }
+
 /* Quality slider customization layout metrics definitions */
 input[type="range"] {
     -webkit-appearance: none;
@@ -95,24 +105,15 @@ input[type="range"]::-webkit-slider-thumb:hover {
 .comp-btn:active, .fmt-btn:active {
     transform: scale(0.98);
 }
+
+/* ==========================================================================
+   VIDEO SUITE PLAYER METRICS & TRANSCODING CONTROLS
+   ========================================================================== */
+
 /* Video Core Viewport Aspect Constraints */
 .aspect-video {
     position: relative;
     aspect-ratio: 16 / 9;
-}
-
-/* Modal Blur Backdrop Layer Animations */
-#video-processing-modal {
-    transition: opacity 0.25s cubic-bezier(0.4, 0, 0.2, 1);
-}
-
-#video-processing-modal.hidden {
-    display: none !important;
-    opacity: 0;
-}
-
-#video-processing-modal:not(.hidden) {
-    opacity: 1;
 }
 
 /* Linear Stream Data Grid List Elements overrides */
@@ -123,6 +124,7 @@ input[type="range"]::-webkit-slider-thumb:hover {
 .vid-comp-btn:active, .vid-fmt-btn:active {
     transform: scale(0.97);
 }
+
 /* Custom Native Media Controller Layer Overrides */
 video::-webkit-media-controls-panel {
     background-image: linear-gradient(to top, rgba(2, 6, 23, 0.85), rgba(2, 6, 23, 0));
@@ -136,6 +138,24 @@ video::-webkit-media-controls-volume-slider,
 video::-webkit-media-controls-mute-button,
 video::-webkit-media-controls-fullscreen-button {
     filter: invert(1) hue-rotate(60deg) saturate(1.5);
+}
+
+/* ==========================================================================
+   TRANSCODING HUD MODAL OVERLAYS & PROGRESS METRICS
+   ========================================================================== */
+
+/* Modal Blur Backdrop Layer Animations */
+#video-processing-modal {
+    transition: opacity 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+#video-processing-modal.hidden {
+    display: none !important;
+    opacity: 0;
+}
+
+#video-processing-modal:not(.hidden) {
+    opacity: 1;
 }
 
 /* Modal Inner Container Transform Target Transitions */

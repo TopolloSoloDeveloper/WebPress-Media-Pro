@@ -1,21 +1,65 @@
-// Global State Scopes
+// Global Application Memory State Scopes
 let activeCompressionPreset = 'medium'; 
 let globalTargetFormat = 'original';     
 let globalFilesQueue = [];
 
+// Dictionary holding target compression parameter ratios
 const COMPRESSION_MAP = {
     'low': 0.90,
     'medium': 0.75,
     'high': 0.55
 };
 
-// Document Mount Initialization Setup
+// Document Mount Execution Flow
 document.addEventListener('DOMContentLoaded', () => {
     lucide.createIcons();
     initThemeEngine();
     initUploadPipeline();
     initGlobalActionListeners();
 });
+
+// ------------------ GLOBAL SYSTEM NOTIFICATION TOASTS ------------------
+let toastTimeout;
+function showToast(message, type = 'success') {
+    const toast = document.getElementById('toast');
+    const toastIconBox = document.getElementById('toast-icon-box');
+    const toastIcon = document.getElementById('toast-icon');
+    const toastMsg = document.getElementById('toast-message');
+
+    if (!toast || !toastMsg) return;
+    toastMsg.textContent = message;
+
+    if (type === 'success') {
+        toastIconBox.className = "p-1.5 rounded-lg bg-emerald-500/10 text-emerald-600 dark:text-emerald-400";
+        toastIcon.setAttribute('data-lucide', 'check-circle');
+    } else if (type === 'error') {
+        toastIconBox.className = "p-1.5 rounded-lg bg-rose-500/10 text-rose-600 dark:text-rose-400";
+        toastIcon.setAttribute('data-lucide', 'alert-triangle');
+    } else {
+        toastIconBox.className = "p-1.5 rounded-lg bg-blue-500/10 text-blue-600 dark:text-blue-400";
+        toastIcon.setAttribute('data-lucide', 'info');
+    }
+
+    lucide.createIcons();
+    toast.classList.remove('translate-y-20', 'opacity-0');
+    toast.classList.add('translate-y-0', 'opacity-100');
+
+    clearTimeout(toastTimeout);
+    toastTimeout = setTimeout(() => {
+        toast.classList.remove('translate-y-0', 'opacity-100');
+        toast.classList.add('translate-y-20', 'opacity-0');
+    }, 3000);
+}
+
+// Converts raw data digital bytes to easily readable string metrics
+function formatBytes(bytes, decimals = 2) {
+    if (bytes === 0) return '0 Bytes';
+    const k = 1024;
+    const dm = decimals < 0 ? 0 : decimals;
+    const sizes = ['Bytes', 'KB', 'MB', 'GB'];
+    const i = Math.floor(Math.log(bytes) / Math.log(k));
+    return parseFloat((bytes / Math.pow(k, i)).toFixed(dm)) + ' ' + sizes[i];
+}
 
 // ------------------ LIGHT / DARK THEME ENGINE ------------------
 function initThemeEngine() {
@@ -48,10 +92,9 @@ function initThemeEngine() {
         lucide.createIcons();
     });
 }
-
 // ------------------ DOM EVENT LISTENERS BINDINGS ------------------
 function initGlobalActionListeners() {
-    // 1. Compression Button Preset Listeners
+    // 1. Compression Preset Filter Switch Event Triggers
     document.querySelectorAll('.comp-btn').forEach(btn => {
         btn.addEventListener('click', (e) => {
             const selectedLevel = e.currentTarget.getAttribute('data-level');
@@ -59,7 +102,7 @@ function initGlobalActionListeners() {
         });
     });
 
-    // 2. Target Format Extension Selector Listeners
+    // 2. Format Conversion Filter Switch Event Triggers
     document.querySelectorAll('.fmt-btn').forEach(btn => {
         btn.addEventListener('click', (e) => {
             const selectedFormat = e.currentTarget.getAttribute('data-format');
@@ -67,7 +110,7 @@ function initGlobalActionListeners() {
         });
     });
 
-    // 3. Clear Queue Global Trigger Action Listener
+    // 3. Global Reset/Clear Actions Trigger Listener
     const clearAllBtn = document.getElementById('btn-clear-all');
     if (clearAllBtn) {
         clearAllBtn.addEventListener('click', () => {
@@ -75,7 +118,7 @@ function initGlobalActionListeners() {
         });
     }
 
-    // 4. Download Queue Global Trigger Action Listener
+    // 4. Global Download Actions Trigger Listener
     const downloadAllBtn = document.getElementById('btn-download-all');
     if (downloadAllBtn) {
         downloadAllBtn.addEventListener('click', () => {
@@ -84,7 +127,7 @@ function initGlobalActionListeners() {
     }
 }
 
-// ------------------ CORE STATE MANIPULATION MUTATORS ------------------
+// ------------------ PRESET OPERATIONAL MODIFIERS ------------------
 function setCompressionPreset(level) {
     activeCompressionPreset = level;
     document.querySelectorAll('.comp-btn').forEach(btn => {
@@ -112,14 +155,17 @@ function setTargetFormatPreset(format) {
     reprocessCurrentQueue();
 }
 
-// ------------------ FILE UPLOAD SUB-ROUTINES ------------------
+// ------------------ SECURE LOCAL DISK FILE INPUT PIPELINE ------------------
 function initUploadPipeline() {
     const dropZone = document.getElementById('drop-zone');
     const fileInput = document.getElementById('file-input');
 
     if (!dropZone || !fileInput) return;
 
+    // Trigger direct click targeting event
     dropZone.addEventListener('click', () => fileInput.click());
+    
+    // Drag status indicators
     dropZone.addEventListener('dragover', (e) => {
         e.preventDefault();
         dropZone.classList.add('border-emerald-500', 'bg-emerald-500/[0.02]');
@@ -142,6 +188,7 @@ function handleIncomingFilesList(filesList) {
         const currentFile = filesList[i];
         if (!currentFile.type.startsWith('image/')) continue;
 
+        // Instantiate isolated memory object configuration mappings
         const queueItemInstance = {
             id: 'wp-' + Date.now() + '-' + Math.floor(Math.random() * 1000),
             originalFile: currentFile,
@@ -159,7 +206,6 @@ function handleIncomingFilesList(filesList) {
     }
     syncQueueHeaderState();
 }
-
 // ------------------ WORKSPACE QUEUE ELEMENT GENERATION ------------------
 function renderQueueItemSkeleton(item) {
     const queueWrapper = document.getElementById('image-processing-queue');
@@ -167,7 +213,7 @@ function renderQueueItemSkeleton(item) {
 
     const rowWrapper = document.createElement('div');
     rowWrapper.id = item.id;
-    rowWrapper.className = "bg-white dark:bg-slate-900/60 border border-slate-200 dark:border-slate-800 rounded-2xl p-4 flex flex-col md:flex-row items-center justify-between gap-4 transition-all duration-200 hover:border-slate-300 dark:hover:border-slate-700 animate-fade-in";
+    rowWrapper.className = "bg-white dark:bg-slate-900/60 border border-slate-200 dark:border-slate-800 rounded-2xl p-4 flex flex-col md:flex-row items-center justify-between gap-4 transition-all duration-200 hover:border-slate-300 dark:hover:border-slate-700 animate-fade-in queue-item-card";
     
     rowWrapper.innerHTML = `
         <div class="flex items-center space-x-4 w-full md:w-auto">
@@ -203,7 +249,7 @@ function renderQueueItemSkeleton(item) {
     queueWrapper.appendChild(rowWrapper);
     lucide.createIcons();
 
-    // Attach explicit element listeners dynamically to bypass HTML inline execution issues
+    // Attach strict dynamic event triggers directly to bypass global scope popup errors
     document.getElementById(`btn-dl-${item.id}`).addEventListener('click', () => downloadSingleItem(item.id));
     document.getElementById(`btn-rm-${item.id}`).addEventListener('click', () => removeSingleQueueItem(item.id));
 }
@@ -220,7 +266,6 @@ function syncQueueHeaderState() {
         header.classList.add('hidden');
     }
 }
-
 // ------------------ IMAGE COMPRESSION CORE PIPELINE (CANVAS TRANSFORMS) ------------------
 function processSingleQueueItem(item) {
     const reader = new FileReader();

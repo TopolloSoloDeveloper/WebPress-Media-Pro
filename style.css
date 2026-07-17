@@ -62,9 +62,11 @@
     pointer-events: none;
 }
 
-/* Explicit backdrop colors to protect rendering sandbox layout */
+/* Explicit backdrop and aspect controls to protect rendering sandbox layout */
 video {
     background-color: #020617;
+    max-height: 100%;
+    max-width: 100%;
 }
 
 /* Custom fade-in presentation helper */

@@ -4,17 +4,17 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>WebPress</title>
-    <!-- Tailwind CSS for robust layout layout controls -->
+    <!-- Tailwind CSS for robust utility layout engine management -->
     <script src="https://cdn.tailwindcss.com"></script>
-    <!-- Lucide Icons for clean iconography -->
+    <!-- Lucide Icons for clean aesthetic vector iconography -->
     <script src="https://unpkg.com/lucide@latest"></script>
-    <!-- Inter Font framework -->
+    <!-- Inter Google Font framework -->
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="style.css">
 </head>
 <body class="bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-slate-100 min-h-screen flex flex-col transition-colors duration-300">
 
-    <!-- Top Sticky Header Navigation Bar -->
+    <!-- Top Navigation Navbar -->
     <header class="border-b border-slate-200 dark:border-slate-900 bg-white/75 dark:bg-slate-950/75 backdrop-blur-md sticky top-0 z-50 transition-colors duration-300">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
             <div class="flex items-center space-x-3">
@@ -31,7 +31,7 @@
                 <span class="hidden sm:flex text-xs bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 px-3 py-1 rounded-full border border-emerald-500/20 font-medium items-center gap-1.5">
                     <span class="w-2 h-2 rounded-full bg-emerald-500 dark:bg-emerald-400 animate-pulse"></span> Serverless Client Sandbox
                 </span>
-                <!-- Theme Mode Controller Switch Toggle -->
+                <!-- Theme Controller Switch Toggle Tool -->
                 <button id="theme-toggle" class="p-2.5 rounded-xl bg-slate-100 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 text-slate-700 dark:text-slate-300 hover:text-emerald-500 transition-all duration-200">
                     <i id="theme-icon" data-lucide="sun" class="w-5 h-5"></i>
                 </button>
@@ -39,26 +39,25 @@
         </div>
     </header>
 
-    <!-- Main Content Frame Wrapper -->
+    <!-- Master Dashboard Layout Frame Context Wrapper -->
     <main class="flex-grow max-w-5xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-10 space-y-10">
         
-        <!-- Hero Section -->
+        <!-- Informational Hero Layout Section -->
         <section class="text-center space-y-3 max-w-2xl mx-auto animate-fade-in">
             <h2 class="text-3xl sm:text-4xl font-extrabold tracking-tight bg-gradient-to-b from-slate-900 to-slate-700 dark:from-slate-100 dark:to-slate-400 bg-clip-text text-transparent">
                 Optimize and Convert Images Instantly
             </h2>
             <p class="text-sm sm:text-base text-slate-600 dark:text-slate-400 leading-relaxed">
-                A lightweight, privacy-focused online compressor similar to TinyPNG. Your images never leave your browser space and run 100% locally on your device.
+                A lightweight, privacy-focused online compressor similar to TinyPNG. Your images never leave your browser space and run 100% locally on your local hardware device.
             </p>
         </section>
-
-        <!-- Master Operations Frame -->
+        <!-- Master Operations Core Panel Frame -->
         <section class="bg-white dark:bg-slate-900/40 border border-slate-200 dark:border-slate-900 rounded-3xl p-6 sm:p-8 shadow-xl shadow-slate-200/20 dark:shadow-none space-y-8 transition-colors duration-300">
             
-            <!-- Global Configuration Block -->
+            <!-- Global Presets Configuration Block -->
             <div class="grid grid-cols-1 md:grid-cols-2 gap-6 bg-slate-50 dark:bg-slate-950/50 p-5 rounded-2xl border border-slate-200/60 dark:border-slate-900 transition-colors duration-300">
                 
-                <!-- Quality Selection Preset Buttons -->
+                <!-- Quality Level Compression Selection Buttons -->
                 <div class="space-y-2.5">
                     <label class="text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400 flex items-center gap-1.5">
                         <i data-lucide="sliders" class="w-4 h-4 text-emerald-500"></i> Compression Strength
@@ -76,7 +75,7 @@
                     </div>
                 </div>
 
-                <!-- Format Output Extension Conversion Selector Buttons -->
+                <!-- Target Format Conversion Selection Buttons -->
                 <div class="space-y-2.5">
                     <label class="text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400 flex items-center gap-1.5">
                         <i data-lucide="file-output" class="w-4 h-4 text-emerald-500"></i> Target Export Format
@@ -97,8 +96,7 @@
                     </div>
                 </div>
             </div>
-
-            <!-- Drag and Drop Local Input Target Area Box -->
+            <!-- Interleaved File Drop Upload Box Container Area -->
             <div id="drop-zone" class="border-2 border-dashed border-slate-300 dark:border-slate-800 hover:border-emerald-500/50 dark:hover:border-emerald-500/40 bg-slate-50/50 dark:bg-slate-950/30 hover:bg-emerald-500/[0.01] rounded-2xl p-8 sm:p-12 text-center cursor-pointer transition-all duration-300 group relative">
                 <input type="file" id="file-input" accept="image/png, image/jpeg, image/jpg, image/webp" multiple class="hidden">
                 <div class="flex flex-col items-center justify-center space-y-4">
@@ -109,12 +107,11 @@
                         <p class="text-sm font-medium text-slate-700 dark:text-slate-300">
                             Drag & drop your images here, or <span class="text-emerald-500 font-semibold group-hover:underline">browse storage</span>
                         </p>
-                        <p class="text-xs text-slate-400 mt-1">Select one or multiple images (PNG, JPG, JPEG, WebP)</p>
+                        <p class="text-xs text-slate-400 mt-1">Select one or multiple assets (PNG, JPG, JPEG, WebP)</p>
                     </div>
                 </div>
             </div>
-
-            <!-- Global Control Bar Section (Hidden while list queue is empty) -->
+            <!-- Global Actions Queue Bar Header (Hidden while queue list is empty) -->
             <div id="queue-header" class="hidden flex flex-col sm:flex-row sm:items-center sm:justify-between p-4 bg-slate-50 dark:bg-slate-950/40 border border-slate-200/60 dark:border-slate-900 rounded-2xl gap-4 transition-colors duration-300">
                 <div class="flex items-center space-x-3">
                     <div class="bg-emerald-500/10 text-emerald-500 p-2 rounded-xl">
@@ -135,21 +132,20 @@
                 </div>
             </div>
 
-            <!-- Dynamic Image File Listing Queue Element Grid -->
+            <!-- Dynamic Asynchronous Multi-File Image Processing List Wrapper Grid -->
             <div id="image-processing-queue" class="space-y-3"></div>
 
         </section>
     </main>
-
-    <!-- Fixed Layout Global Bottom Footer -->
+    <!-- Global Application Bottom Footer -->
     <footer class="border-t border-slate-200 dark:border-slate-900 bg-white dark:bg-slate-950 py-6 transition-colors duration-300 shrink-0">
         <div class="max-w-7xl mx-auto px-4 text-center space-y-1">
-            <p class="text-xs sm:text-sm text-slate-500">&copy; 2026 WebPress. All processes execute securely on-device.</p>
-            <p class="text-[11px] text-slate-400 dark:text-slate-600">Local isolation sandbox active. Files are processed exclusively inside your browser.</p>
+            <p class="text-xs sm:text-sm text-slate-500">&copy; 2026 WebPress. All processes execute on-device securely.</p>
+            <p class="text-[11px] text-slate-400 dark:text-slate-600">Local rendering sandbox enabled. Active assets are never synchronized or transmitted to external web instances.</p>
         </div>
     </footer>
 
-    <!-- Global Layout Alert Popup Toast Container Frame -->
+    <!-- Global Layout Alert Toast Container Framework -->
     <div id="toast" class="fixed bottom-6 right-6 bg-slate-900 border border-slate-800 text-slate-100 px-5 py-4 rounded-2xl shadow-2xl flex items-center gap-3 transform translate-y-20 opacity-0 transition-all duration-300 z-50 max-w-sm">
         <div id="toast-icon-box" class="p-1.5 rounded-lg">
             <i id="toast-icon" data-lucide="info" class="w-5 h-5"></i>

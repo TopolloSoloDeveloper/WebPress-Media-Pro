@@ -1,4 +1,4 @@
-t<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en" class="dark">
 <head>
     <meta charset="UTF-8">
@@ -51,118 +51,8 @@ t<!DOCTYPE html>
                 A lightweight, privacy-focused online compressor similar to TinyPNG. Your images never leave your browser space and run 100% locally on your local hardware device.
             </p>
         </section>
-        <!-- Master Operations Core Panel Frame -->
-        <section class="bg-white dark:bg-slate-900/40 border border-slate-200 dark:border-slate-900 rounded-3xl p-6 sm:p-8 shadow-xl shadow-slate-200/20 dark:shadow-none space-y-8 transition-colors duration-300">
-            
-            <!-- Global Presets Configuration Block -->
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-6 bg-slate-50 dark:bg-slate-950/50 p-5 rounded-2xl border border-slate-200/60 dark:border-slate-900 transition-colors duration-300">
-                
-                <!-- Quality Level Compression Selection Buttons -->
-                <div class="space-y-2.5">
-                    <label class="text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400 flex items-center gap-1.5">
-                        <i data-lucide="sliders" class="w-4 h-4 text-emerald-500"></i> Compression Strength
-                    </label>
-                    <div class="grid grid-cols-3 gap-2">
-                        <button id="btn-comp-low" data-level="low" class="comp-btn px-4 py-2.5 rounded-xl border font-semibold text-xs text-center transition-all duration-200 bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-800 text-slate-600 dark:text-slate-400">
-                            Low
-                        </button>
-                        <button id="btn-comp-medium" data-level="medium" class="comp-btn px-4 py-2.5 rounded-xl border font-semibold text-xs text-center transition-all duration-200 bg-gradient-to-r from-emerald-500/10 to-teal-500/10 text-emerald-600 dark:text-emerald-400 border-emerald-500/20 shadow-sm shadow-emerald-500/5">
-                            Medium
-                        </button>
-                        <button id="btn-comp-high" data-level="high" class="comp-btn px-4 py-2.5 rounded-xl border font-semibold text-xs text-center transition-all duration-200 bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-800 text-slate-600 dark:text-slate-400">
-                            High
-                        </button>
-                    </div>
-                </div>
 
-                <!-- Target Format Conversion Selection Buttons -->
-                <div class="space-y-2.5">
-                    <label class="text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400 flex items-center gap-1.5">
-                        <i data-lucide="file-output" class="w-4 h-4 text-emerald-500"></i> Target Export Format
-                    </label>
-                    <div class="grid grid-cols-4 gap-2">
-                        <button id="btn-fmt-original" data-format="original" class="fmt-btn px-3 py-2.5 rounded-xl border font-semibold text-xs text-center transition-all duration-200 bg-gradient-to-r from-emerald-500/10 to-teal-500/10 text-emerald-600 dark:text-emerald-400 border-emerald-500/20 shadow-sm shadow-emerald-500/5">
-                            Original
-                        </button>
-                        <button id="btn-fmt-jpeg" data-format="image/jpeg" class="fmt-btn px-3 py-2.5 rounded-xl border font-semibold text-xs text-center transition-all duration-200 bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-800 text-slate-600 dark:text-slate-400">
-                            JPEG
-                        </button>
-                        <button id="btn-fmt-png" data-format="image/png" class="fmt-btn px-3 py-2.5 rounded-xl border font-semibold text-xs text-center transition-all duration-200 bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-800 text-slate-600 dark:text-slate-400">
-                            PNG
-                        </button>
-                        <button id="btn-fmt-webp" data-format="image/webp" class="fmt-btn px-3 py-2.5 rounded-xl border font-semibold text-xs text-center transition-all duration-200 bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-800 text-slate-600 dark:text-slate-400">
-                            WebP
-                        </button>
-                    </div>
-                </div>
-            </div>
-            <!-- Interleaved File Drop Upload Box Container Area -->
-            <div id="drop-zone" class="border-2 border-dashed border-slate-300 dark:border-slate-800 hover:border-emerald-500/50 dark:hover:border-emerald-500/40 bg-slate-50/50 dark:bg-slate-950/30 hover:bg-emerald-500/[0.01] rounded-2xl p-8 sm:p-12 text-center cursor-pointer transition-all duration-300 group relative">
-                <input type="file" id="file-input" accept="image/png, image/jpeg, image/jpg, image/webp" multiple class="hidden">
-                <div class="flex flex-col items-center justify-center space-y-4">
-                    <div class="p-4 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl text-slate-400 dark:text-slate-500 group-hover:text-emerald-500 group-hover:border-emerald-500/20 group-hover:shadow-lg group-hover:shadow-emerald-500/5 transition-all duration-300">
-                        <i data-lucide="upload-cloud" class="w-8 h-8"></i>
-                    </div>
-                    <div>
-                        <p class="text-sm font-medium text-slate-700 dark:text-slate-300">
-                            Drag & drop your images here, or <span class="text-emerald-500 font-semibold group-hover:underline">browse storage</span>
-                        </p>
-                        <p class="text-xs text-slate-400 mt-1">Select one or multiple assets (PNG, JPG, JPEG, WebP)</p>
-                    </div>
-                </div>
-            </div>
-            <!-- Global Actions Queue Bar Header (Hidden while queue list is empty) -->
-            <div id="queue-header" class="hidden flex flex-col sm:flex-row sm:items-center sm:justify-between p-4 bg-slate-50 dark:bg-slate-950/40 border border-slate-200/60 dark:border-slate-900 rounded-2xl gap-4 transition-colors duration-300">
-                <div class="flex items-center space-x-3">
-                    <div class="bg-emerald-500/10 text-emerald-500 p-2 rounded-xl">
-                        <i data-lucide="layers" class="w-5 h-5"></i>
-                    </div>
-                    <div>
-                        <h4 class="text-sm font-bold text-slate-800 dark:text-slate-200">Processing Queue</h4>
-                        <p id="queue-count" class="text-xs text-slate-500">0 items pending processing</p>
-                    </div>
-                </div>
-                <div class="flex items-center space-x-2 w-full sm:w-auto">
-                    <button id="btn-clear-all" class="w-1/2 sm:w-auto px-4 py-2 border border-slate-200 dark:border-slate-800 hover:border-rose-500/20 bg-white dark:bg-slate-900 text-slate-500 hover:text-rose-500 rounded-xl font-medium text-xs transition-all duration-200 flex items-center justify-center gap-1.5">
-                        <i data-lucide="trash-2" class="w-4 h-4"></i> Clear All
-                    </button>
-                    <button id="btn-download-all" class="w-1/2 sm:w-auto px-5 py-2 bg-gradient-to-r from-emerald-500 to-teal-500 hover:from-emerald-600 hover:to-teal-600 text-slate-950 font-bold rounded-xl text-xs transition-all duration-200 shadow-md shadow-emerald-500/10 flex items-center justify-center gap-1.5">
-                        <i data-lucide="download-cloud" class="w-4 h-4"></i> Download All
-                    </button>
-                </div>
-            </div>
-
-            <!-- Dynamic Asynchronous Multi-File Image Processing List Wrapper Grid -->
-            <div id="image-processing-queue" class="space-y-3"></div>
-
-        </section>
-    </main>
-    <!-- Global Application Bottom Footer -->
-    <footer class="border-t border-slate-200 dark:border-slate-900 bg-white dark:bg-slate-950 py-6 transition-colors duration-300 shrink-0">
-        <div class="max-w-7xl mx-auto px-4 text-center space-y-1">
-            <p class="text-xs sm:text-sm text-slate-500">&copy; 2026 WebPress. All processes execute on-device securely.</p>
-            <p class="text-[11px] text-slate-400 dark:text-slate-600">Local rendering sandbox enabled. Active assets are never synchronized or transmitted to external web instances.</p>
-        </div>
-    </footer>
-
-    <!-- Global Layout Alert Toast Container Framework -->
-    <div id="toast" class="fixed bottom-6 right-6 bg-slate-900 border border-slate-800 text-slate-100 px-5 py-4 rounded-2xl shadow-2xl flex items-center gap-3 transform translate-y-20 opacity-0 transition-all duration-300 z-50 max-w-sm">
-        <div id="toast-icon-box" class="p-1.5 rounded-lg">
-            <i id="toast-icon" data-lucide="info" class="w-5 h-5"></i>
-        </div>
-        <div>
-            <p id="toast-message" class="text-sm font-semibold"></p>
-        </div>
-    </div>
-
-    <!-- Background Task Canvas Element Container (Hidden) -->
-    <canvas id="img-hidden-canvas" class="hidden"></canvas>
-
-    <!-- Main Logic Script Source Link -->
-    <script src="script.js"></script>
-</body>
-</html>
-<!-- Workspace Navigation Interface Tabs Switcher Links -->
+        <!-- Workspace Navigation Interface Tabs Switcher Links -->
         <div class="flex items-center justify-center border-b border-slate-200 dark:border-slate-900 pb-px max-w-sm mx-auto">
             <button id="tab-trigger-image" class="w-1/2 text-center pb-3 font-semibold text-sm border-b-2 border-emerald-500 text-emerald-500 transition-all duration-200">
                 Image Suite
@@ -172,6 +62,96 @@ t<!DOCTYPE html>
             </button>
         </div>
 
+        <!-- WORKSPACE PANEL 1: IMAGE OPTIMIZER SUITE WRAPPER -->
+        <div id="workspace-image-suite" class="space-y-8">
+            <!-- Master Operations Core Panel Frame -->
+            <section class="bg-white dark:bg-slate-900/40 border border-slate-200 dark:border-slate-900 rounded-3xl p-6 sm:p-8 shadow-xl shadow-slate-200/20 dark:shadow-none space-y-8 transition-colors duration-300">
+                
+                <!-- Global Presets Configuration Block -->
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6 bg-slate-50 dark:bg-slate-950/50 p-5 rounded-2xl border border-slate-200/60 dark:border-slate-900 transition-colors duration-300">
+                    
+                    <!-- Quality Level Compression Selection Buttons -->
+                    <div class="space-y-2.5">
+                        <label class="text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400 flex items-center gap-1.5">
+                            <i data-lucide="sliders" class="w-4 h-4 text-emerald-500"></i> Compression Strength
+                        </label>
+                        <div class="grid grid-cols-3 gap-2">
+                            <button id="btn-comp-low" data-level="low" class="comp-btn px-4 py-2.5 rounded-xl border font-semibold text-xs text-center transition-all duration-200 bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-800 text-slate-600 dark:text-slate-400">
+                                Low
+                            </button>
+                            <button id="btn-comp-medium" data-level="medium" class="comp-btn px-4 py-2.5 rounded-xl border font-semibold text-xs text-center transition-all duration-200 bg-gradient-to-r from-emerald-500/10 to-teal-500/10 text-emerald-600 dark:text-emerald-400 border-emerald-500/20 shadow-sm shadow-emerald-500/5">
+                                Medium
+                            </button>
+                            <button id="btn-comp-high" data-level="high" class="comp-btn px-4 py-2.5 rounded-xl border font-semibold text-xs text-center transition-all duration-200 bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-800 text-slate-600 dark:text-slate-400">
+                                High
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Target Format Conversion Selection Buttons -->
+                    <div class="space-y-2.5">
+                        <label class="text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400 flex items-center gap-1.5">
+                            <i data-lucide="file-output" class="w-4 h-4 text-emerald-500"></i> Target Export Format
+                        </label>
+                        <div class="grid grid-cols-4 gap-2">
+                            <button id="btn-fmt-original" data-format="original" class="fmt-btn px-3 py-2.5 rounded-xl border font-semibold text-xs text-center transition-all duration-200 bg-gradient-to-r from-emerald-500/10 to-teal-500/10 text-emerald-600 dark:text-emerald-400 border-emerald-500/20 shadow-sm shadow-emerald-500/5">
+                                Original
+                            </button>
+                            <button id="btn-fmt-jpeg" data-format="image/jpeg" class="fmt-btn px-3 py-2.5 rounded-xl border font-semibold text-xs text-center transition-all duration-200 bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-800 text-slate-600 dark:text-slate-400">
+                                JPEG
+                            </button>
+                            <button id="btn-fmt-png" data-format="image/png" class="fmt-btn px-3 py-2.5 rounded-xl border font-semibold text-xs text-center transition-all duration-200 bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-800 text-slate-600 dark:text-slate-400">
+                                PNG
+                            </button>
+                            <button id="btn-fmt-webp" data-format="image/webp" class="fmt-btn px-3 py-2.5 rounded-xl border font-semibold text-xs text-center transition-all duration-200 bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-800 text-slate-600 dark:text-slate-400">
+                                WebP
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Interleaved File Drop Upload Box Container Area -->
+                <div id="drop-zone" class="border-2 border-dashed border-slate-300 dark:border-slate-800 hover:border-emerald-500/50 dark:hover:border-emerald-500/40 bg-slate-50/50 dark:bg-slate-950/30 hover:bg-emerald-500/[0.01] rounded-2xl p-8 sm:p-12 text-center cursor-pointer transition-all duration-300 group relative">
+                    <input type="file" id="file-input" accept="image/png, image/jpeg, image/jpg, image/webp" multiple class="hidden">
+                    <div class="flex flex-col items-center justify-center space-y-4">
+                        <div class="p-4 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl text-slate-400 dark:text-slate-500 group-hover:text-emerald-500 group-hover:border-emerald-500/20 group-hover:shadow-lg group-hover:shadow-emerald-500/5 transition-all duration-300">
+                            <i data-lucide="upload-cloud" class="w-8 h-8"></i>
+                        </div>
+                        <div>
+                            <p class="text-sm font-medium text-slate-700 dark:text-slate-300">
+                                Drag & drop your images here, or <span class="text-emerald-500 font-semibold group-hover:underline">browse storage</span>
+                            </p>
+                            <p class="text-xs text-slate-400 mt-1">Select one or multiple assets (PNG, JPG, JPEG, WebP)</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Global Actions Queue Bar Header (Hidden while queue list is empty) -->
+                <div id="queue-header" class="hidden flex flex-col sm:flex-row sm:items-center sm:justify-between p-4 bg-slate-50 dark:bg-slate-950/40 border border-slate-200/60 dark:border-slate-900 rounded-2xl gap-4 transition-colors duration-300">
+                    <div class="flex items-center space-x-3">
+                        <div class="bg-emerald-500/10 text-emerald-500 p-2 rounded-xl">
+                            <i data-lucide="layers" class="w-5 h-5"></i>
+                        </div>
+                        <div>
+                            <h4 class="text-sm font-bold text-slate-800 dark:text-slate-200">Processing Queue</h4>
+                            <p id="queue-count" class="text-xs text-slate-500">0 items pending processing</p>
+                        </div>
+                    </div>
+                    <div class="flex items-center space-x-2 w-full sm:w-auto">
+                        <button id="btn-clear-all" class="w-1/2 sm:w-auto px-4 py-2 border border-slate-200 dark:border-slate-800 hover:border-rose-500/20 bg-white dark:bg-slate-900 text-slate-500 hover:text-rose-500 rounded-xl font-medium text-xs transition-all duration-200 flex items-center justify-center gap-1.5">
+                            <i data-lucide="trash-2" class="w-4 h-4"></i> Clear All
+                        </button>
+                        <button id="btn-download-all" class="w-1/2 sm:w-auto px-5 py-2 bg-gradient-to-r from-emerald-500 to-teal-500 hover:from-emerald-600 hover:to-teal-600 text-slate-950 font-bold rounded-xl text-xs transition-all duration-200 shadow-md shadow-emerald-500/10 flex items-center justify-center gap-1.5">
+                            <i data-lucide="download-cloud" class="w-4 h-4"></i> Download All
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Dynamic Asynchronous Multi-File Image Processing List Wrapper Grid -->
+                <div id="image-processing-queue" class="space-y-3"></div>
+
+            </section>
+        </div>
         <!-- WORKSPACE PANEL 2: VIDEO OPTIMIZER SUITE WRAPPER (Hidden by default) -->
         <div id="workspace-video-suite" class="hidden space-y-8 animate-fade-in">
             
@@ -217,6 +197,7 @@ t<!DOCTYPE html>
                     </div>
                 </div>
             </div>
+
             <!-- Video File Drop Target Upload Box Container Area -->
             <div id="video-drop-zone" class="border-2 border-dashed border-slate-300 dark:border-slate-800 hover:border-emerald-500/50 dark:hover:border-emerald-500/40 bg-slate-50/50 dark:bg-slate-950/30 hover:bg-emerald-500/[0.01] rounded-2xl p-8 sm:p-12 text-center cursor-pointer transition-all duration-300 group relative">
                 <input type="file" id="video-file-input" accept="video/mp4, video/webm, video/ogg, video/quicktime, video/x-matroska" class="hidden">
@@ -281,10 +262,19 @@ t<!DOCTYPE html>
                         </button>
                     </div>
                 </div>
-
             </div>
-                            </div>
-                            <!-- Video Processing Multi-Stream Asynchronous Status HUD Modal Overlay -->
+        </div>
+    </main>
+
+    <!-- Global Application Bottom Footer -->
+    <footer class="border-t border-slate-200 dark:border-slate-900 bg-white dark:bg-slate-950 py-6 transition-colors duration-300 shrink-0">
+        <div class="max-w-7xl mx-auto px-4 text-center space-y-1">
+            <p class="text-xs sm:text-sm text-slate-500">&copy; 2026 WebPress. All processes execute on-device securely.</p>
+            <p class="text-[11px] text-slate-400 dark:text-slate-600">Local rendering sandbox enabled. Active assets are never synchronized or transmitted to external web instances.</p>
+        </div>
+    </footer>
+
+    <!-- Video Processing Multi-Stream Asynchronous Status HUD Modal Overlay -->
     <div id="video-processing-modal" class="hidden fixed inset-0 bg-slate-950/80 backdrop-blur-md z-[100] flex items-center justify-center p-4 transition-all duration-300">
         <div class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-3xl p-6 w-full max-w-sm shadow-2xl space-y-5 text-center transform scale-95 transition-all duration-300">
             
@@ -318,3 +308,21 @@ t<!DOCTYPE html>
             </p>
         </div>
     </div>
+
+    <!-- Global Layout Alert Toast Container Framework -->
+    <div id="toast" class="fixed bottom-6 right-6 bg-slate-900 border border-slate-800 text-slate-100 px-5 py-4 rounded-2xl shadow-2xl flex items-center gap-3 transform translate-y-20 opacity-0 transition-all duration-300 z-50 max-w-sm">
+        <div id="toast-icon-box" class="p-1.5 rounded-lg">
+            <i id="toast-icon" data-lucide="info" class="w-5 h-5"></i>
+        </div>
+        <div>
+            <p id="toast-message" class="text-sm font-semibold"></p>
+        </div>
+    </div>
+
+    <!-- Background Task Canvas Element Container (Hidden) -->
+    <canvas id="img-hidden-canvas" class="hidden"></canvas>
+
+    <!-- Main Logic Script Source Link -->
+    <script src="script.js"></script>
+</body>
+</html>
